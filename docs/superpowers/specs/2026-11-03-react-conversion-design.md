@@ -87,6 +87,16 @@ Use normal browser history (clean `/quiz` paths; the owner chose a new host). An
 
 Use dnd-kit's standard interactions: drag by mouse or touch with a handle, and use dnd-kit's built-in keyboard sensor (Space to pick up, arrows to move, Space to drop, Escape to cancel) with its own screen-reader announcements. Drop the old direct ↑/↓/Home/End moves, the tap-one-then-tap-another move, the custom `aria-live` messages and the tilted drag ghost. Keep the parts that affect grading or meaning: the list starts in the shuffled display order; an untouched list counts as **unanswered**; a "Use this order" button records the current order as the answer, and any move records it too; show the position numbers. Respect `prefers-reduced-motion`.
 
+### Data shape (decided by the owner)
+
+Old saves don't need to carry over, so the saved and in-memory data shape is redesigned for readability instead of copied:
+
+- **One type per question format** (a TypeScript discriminated union on `format`). Each type has only the fields that format uses: single-choice and multi-select have `options`, matching has `left` and `right`, ordering has `items`, and true-false, fill-in-blank and short-answer have none of those lists. Each format's `answer` (`null` when the file says `unknown`) and response type are typed to fit, for example a matching answer is a map from left id to right id. The old shape put empty `options`/`left`/`right`/`items` arrays on every question, and that goes away.
+- Common fields stay on every question: `id` (`<sha256>:<number>`), `bankId`, `number`, `prompt`, `explanation`, `sourceTitle`. *(My call: rename the old `sourceId` to `bankId` and `databases` to `banks` to match the UI's wording. The builder may keep the old names if renaming makes porting the tests noticeably harder.)*
+- `localStorage` key `quiz-workspace:v2`, envelope `{version: 2, state: {banks, attempt}}`. The `zod` schemas are the single source of truth: the TypeScript types are inferred from them with `z.infer`, and they also check that saved data is consistent, such as answers referring to options that exist and responses belonging to questions in the attempt. That covers everything the old `storage.js` checked.
+
+Tests that check **exact data shapes** (mostly in the parser and storage suites) are updated to the new shape. Tests that check **behaviour** keep the same expectations: which files are accepted or rejected, error message wording, grading results, summaries, retry logic and question counts.
+
 ## Behaviour to preserve
 
 All of this exists in the old code and must carry over unchanged.
@@ -97,7 +107,7 @@ All of this exists in the old code and must carry over unchanged.
 
 **Grading** — one point per fully correct question; all-or-nothing for multi-select, blanks, matching, ordering; blank comparison ignores case and collapses whitespace; unanswered gradable → incorrect; short answer → pending until assessed; percentage only when finalised and there is at least one gradable question.
 
-**Storage** — `localStorage` key `quiz-workspace:v1`, envelope `{version: 1, state: {databases, attempt}}`, same data shape. *(My call: keep the key and shape even though the site is moving to a new host and old saves won't be reachable. It costs nothing, and the old tests assume it.)* Questions may carry an optional `sourceTitle` string, so the schema must allow it. If `localStorage` is unavailable or a save fails, show the same warning and the "Not saved" wording (`storageStatus`) and keep working in memory. If saved data is invalid, show the "could not be restored" warning and start empty without overwriting the save until the next change.
+**Storage** — progress is saved to `localStorage` on every change. The key and data shape change (see "Data shape"). If `localStorage` is unavailable or a save fails, show the same warning and the "Not saved" wording (`storageStatus`) and keep working in memory. If saved data is invalid, show the "could not be restored" warning and start empty without overwriting the save until the next change.
 
 **UI** — the same screens, copy, and controls as today: library (resume/view-results notice, bank list with remove, drop zone + file picker, import error list with "Remove rejected file", "Seven ways to practice" tags, session sidebar with question count input and validation, Start quiz disabled while import errors are shown); quiz (back link, "Question n of N", format tag, flag toggle, source line, answer inputs per format, Previous / Next / "Review & finish", sidebar with answered count, progress bar, question navigator grid showing answered/flagged/current, legend, save label); results (score disc, eyebrow/heading/copy variants, four stat boxes, retry/back actions, collapsible review list with your answer / correct or model answer / explanation, self-assessment buttons, pending items open by default). Accessibility details carry over: skip link, `aria-live` status on ordering, `aria-pressed` on toggles, `aria-current` on the current navigator button, focus moved to `<main>` and scroll to top on screen change, focus returned to the flag / assessment button after toggling, `prefers-reduced-motion` respected.
 
@@ -130,9 +140,9 @@ State: a single React context with a reducer is enough; no state library.
 
 ## Tests and definition of done
 
-- Port all four old test files to Vitest against the new `lib/` modules. All of their assertions pass with LF fixtures (see the next item).
+- Port all four old test files to Vitest against the new `lib/` modules. Behaviour assertions stay the same and pass with LF fixtures (see the next item). Assertions about data shape are updated to the new shape (see "Data shape").
 - Copy `.private/gpt-generated/tests/fixtures/*.md` into `tests/fixtures/` and `.private/example-input/*.md` into `tests/fixtures/examples/`. They need separate folders because both contain a `ch-1-test.md`. *(My call:)* convert all fixtures to LF line endings and pin that with `.gitattributes`. The old fixtures are CRLF, and that makes 3 of the old 32 tests fail today, because the tests do string replacements that assume `\n`. The parser's CRLF handling is already covered by a test that builds its own CRLF input. Add a test that the four example files import with: `ch-1-test.md` 10, `ch-2-test.md` 10, `ch-3-test.md` 7, `chapter-1-questions-x-100.md` 83 questions, no errors.
-- Add a test that the new `zod` schema accepts a state built by the old code's logic and rejects the invalid cases the old `storage.js` rejected.
+- Add tests that the `zod` schema accepts a state produced by the new parser and attempt code, and rejects the kinds of invalid state the old `storage.js` rejected.
 - `bun run build` succeeds, `bun run check` (Biome) is clean.
 - Manual pass in the browser: import the example files, take a quiz touching every format, reorder by mouse and by dnd-kit keyboard, finish, self-assess, retry missed, reload mid-quiz and resume, back button between routes.
 
