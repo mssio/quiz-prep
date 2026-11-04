@@ -153,6 +153,7 @@ function QuizList() {
 						busy={busy}
 						onFiles={handleFiles}
 						onResetEverything={resetEverything}
+						onImported={() => setPending(null)}
 					/>
 				}
 			/>

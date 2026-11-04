@@ -1,4 +1,5 @@
 import { AddQuizzes } from "#/components/quizzes/AddQuizzes";
+import { TransferButtons } from "#/components/quizzes/TransferButtons";
 import { Button, SectionLabel, SummaryRow } from "#/components/ui";
 import { storageStatus } from "#/lib/storage";
 
@@ -9,6 +10,7 @@ type Props = {
 	busy: boolean;
 	onFiles(files: File[]): void;
 	onResetEverything(): void;
+	onImported(): void;
 };
 
 export function LibrarySidebar(props: Props) {
@@ -24,15 +26,7 @@ export function LibrarySidebar(props: Props) {
 			<SummaryRow label="Total attempts" value={props.attemptCount} />
 			<SummaryRow label="Progress" value={status.library} />
 			<hr className="my-[22px] border-line" />
-			{/* Task 14 wires these two buttons. */}
-			<div className="mb-4 grid grid-cols-2 gap-2">
-				<Button variant="secondary" disabled>
-					Export
-				</Button>
-				<Button variant="secondary" disabled>
-					Import
-				</Button>
-			</div>
+			<TransferButtons onImported={props.onImported} />
 			<Button variant="danger" full onClick={props.onResetEverything}>
 				Reset everything
 			</Button>
