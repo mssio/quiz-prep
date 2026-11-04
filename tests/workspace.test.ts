@@ -6,6 +6,7 @@ import {
 	createQuiz,
 	findQuiz,
 	playRedirect,
+	resultsRedirect,
 	workspaceReducer,
 } from "#/lib/workspace";
 import allFormats from "./fixtures/all-formats.md?raw";
@@ -87,4 +88,13 @@ test("playRedirect sends each attempt state to the right screen", () => {
 	expect(playRedirect(null)).toBe("quiz");
 	expect(playRedirect(active)).toBeNull();
 	expect(playRedirect(submitted)).toBe("results");
+});
+
+test("resultsRedirect keeps only a submitted attempt on results", () => {
+	const quiz = createQuiz(file, "Quiz", NOW);
+	const active = createAttempt(quiz.questions);
+	const submitted = updateAttempt(active, { type: "submit", at: NOW });
+	expect(resultsRedirect(null)).toBe("quiz");
+	expect(resultsRedirect(active)).toBe("play");
+	expect(resultsRedirect(submitted)).toBeNull();
 });

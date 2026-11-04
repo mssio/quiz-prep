@@ -85,3 +85,11 @@ export function playRedirect(
 	if (!attempt) return "quiz";
 	return attempt.status === "submitted" ? "results" : null;
 }
+
+// Where the results screen should send the learner. null means stay on results.
+export function resultsRedirect(
+	attempt: Attempt | null,
+): "quiz" | "play" | null {
+	if (!attempt) return "quiz";
+	return attempt.status === "active" ? "play" : null;
+}
