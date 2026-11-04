@@ -16,7 +16,7 @@ type Props = {
 export function LibrarySidebar(props: Props) {
 	const status = storageStatus(props.saveOk);
 	return (
-		<section className="rounded-2xl border border-line bg-white p-[26px] shadow-[0_3px_8px_#182b4210]">
+		<section className="rounded-2xl border border-line bg-white p-6 shadow-[0_3px_8px_#182b4210] phone:p-[22px] tablet:p-[26px]">
 			<SectionLabel>Add quizzes</SectionLabel>
 			<div className="mt-4">
 				<AddQuizzes busy={props.busy} onFiles={props.onFiles} />
@@ -26,7 +26,7 @@ export function LibrarySidebar(props: Props) {
 			<SummaryRow label="Total attempts" value={props.attemptCount} />
 			<SummaryRow label="Progress" value={status.library} />
 			<hr className="my-[22px] border-line" />
-			<TransferButtons onImported={props.onImported} />
+			<TransferButtons busy={props.busy} onImported={props.onImported} />
 			<Button variant="danger" full onClick={props.onResetEverything}>
 				Reset everything
 			</Button>

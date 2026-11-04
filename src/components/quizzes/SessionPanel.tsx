@@ -19,10 +19,10 @@ export function SessionPanel({ quiz, saveOk, onStart }: Props) {
 
 	return (
 		<Panel>
-			<div className="p-[22px]">
+			<div className="p-6 phone:p-[22px] tablet:p-[26px]">
 				<SectionLabel>Your next session</SectionLabel>
 				<div className="mt-3 flex items-baseline gap-2">
-					<strong className="text-4xl font-[750] text-[#17293f]">
+					<strong className="text-5xl font-[650] tracking-[-2px]">
 						{total}
 					</strong>
 					<span className="text-muted">questions ready</span>

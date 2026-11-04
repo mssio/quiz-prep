@@ -37,7 +37,7 @@ export function QuestionView(props: Props) {
 		<div>
 			<h2
 				id="question-prompt"
-				className="mb-[25px] text-xl leading-[1.5] font-semibold tracking-[-0.35px] break-words whitespace-pre-wrap phone:text-[23px]"
+				className="mb-[25px] text-xl leading-[1.5] font-semibold tracking-[-0.35px] [overflow-wrap:anywhere] whitespace-pre-wrap phone:text-[23px]"
 			>
 				<MathText text={props.question.prompt} />
 			</h2>

@@ -52,9 +52,9 @@ export function QuizSidebar({ attempt, saveOk, onNavigate, onFinish }: Props) {
 
 	return (
 		<Panel>
-			<div className="p-[26px]">
+			<div className="p-6 phone:p-[22px] tablet:p-[26px]">
 				<SectionLabel>Session overview</SectionLabel>
-				<p className="text-sm leading-[1.6] text-muted">
+				<p className="my-3.5 text-sm leading-[1.6] text-muted">
 					{answeredCount} of {total} answered
 				</p>
 				<div className="mt-[17px] h-1.5 overflow-hidden rounded-md bg-[#e6edf6]">
@@ -65,7 +65,7 @@ export function QuizSidebar({ attempt, saveOk, onNavigate, onFinish }: Props) {
 				</div>
 				<nav
 					aria-label="Question navigator"
-					className="my-[22px] grid grid-cols-5 gap-2"
+					className="my-[22px] grid grid-cols-8 gap-2 phone:grid-cols-5"
 				>
 					{attempt.order.map((id, index) => {
 						const question = questionFor(id);

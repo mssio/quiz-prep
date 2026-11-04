@@ -13,7 +13,7 @@ export function Assessment({ assessed, onAssess }: Props) {
 	return (
 		<div className="rounded-lg border border-[#efdbaf] bg-[#fff7e8] p-[18px]">
 			<strong>{title}</strong>
-			<p className="text-sm leading-[1.6] text-muted">
+			<p className="my-3.5 text-sm leading-[1.6] text-muted">
 				Compare your response with the model answer. Your assessment contributes
 				to the score.
 			</p>

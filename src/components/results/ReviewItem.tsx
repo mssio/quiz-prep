@@ -29,7 +29,7 @@ const STATUS_STYLE: Record<GradeStatus, string> = {
 };
 
 const ANSWER_BOX =
-	"mt-2 mb-5 rounded-[7px] bg-[#f4f7fc] p-3.5 leading-[1.65] break-words whitespace-pre-wrap";
+	"mt-2 mb-5 rounded-[7px] bg-[#f4f7fc] p-3.5 leading-[1.65] [overflow-wrap:anywhere] whitespace-pre-wrap";
 
 function Label({ children }: { children: string }) {
 	return <span className="text-[13px] font-[650]">{children}</span>;
@@ -77,12 +77,12 @@ export function ReviewItem({
 				>
 					{STATUS_LABEL[grade.status]}
 				</span>
-				<div>
+				<div className="min-w-0">
 					<span className="text-sm text-muted">
 						{index + 1} · {formatNames[question.format]}
 						{flag}
 					</span>
-					<h3 className="my-[3px] text-base leading-[1.6] break-words whitespace-pre-wrap">
+					<h3 className="my-[3px] text-base font-bold leading-[1.6] [overflow-wrap:anywhere] whitespace-pre-wrap">
 						<MathText text={question.prompt} />
 					</h3>
 				</div>
@@ -92,7 +92,7 @@ export function ReviewItem({
 				</span>
 			</summary>
 			<div className="border-t border-line p-[22px]">
-				<p className="mb-5 text-[13px] break-words text-muted">
+				<p className="mb-5 text-[13px] [overflow-wrap:anywhere] text-muted">
 					{sourceName} · Q{question.number}
 				</p>
 				<Label>Your answer</Label>

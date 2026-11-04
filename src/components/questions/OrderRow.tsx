@@ -3,8 +3,8 @@ import { CSS } from "@dnd-kit/utilities";
 import { MathText } from "#/components/MathText";
 
 const ROW_CLASS =
-	"relative mb-[9px] flex items-center gap-3 rounded-lg border bg-white p-3 shadow-[0_2px_5px_#17293f09]";
-const IDLE_CLASS = "border-line";
+	"relative mb-[9px] flex items-center gap-3 rounded-lg border p-3 shadow-[0_2px_5px_#17293f09]";
+const IDLE_CLASS = "border-line bg-white";
 const DRAGGING_CLASS =
 	"z-10 border-dashed border-[#8daae7] bg-[#edf3ff] shadow-[0_4px_12px_#245ad72b]";
 
@@ -43,7 +43,7 @@ export function OrderRow({ id, text, position, total }: OrderRowProps) {
 			<span className="rounded-[5px] border border-line bg-white px-[9px] py-[7px] text-xs text-muted">
 				{position}
 			</span>
-			<span className="min-w-0 flex-1 leading-[1.5] break-words whitespace-pre-wrap">
+			<span className="min-w-0 flex-1 leading-[1.5] [overflow-wrap:anywhere] whitespace-pre-wrap">
 				<MathText text={text} />
 			</span>
 			<button

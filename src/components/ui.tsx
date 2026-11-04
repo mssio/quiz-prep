@@ -3,14 +3,14 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 type Variant = "primary" | "secondary" | "danger" | "text";
 
 const BUTTON_BASE =
-	"inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-[18px] py-3 text-sm leading-[1.3] font-[650] no-underline";
+	"inline-flex min-h-11 items-center justify-center gap-2 text-sm leading-[1.3] font-[650] no-underline";
+
+const BOXED = "rounded-lg px-[18px] py-3";
 
 const BUTTON_VARIANTS: Record<Variant, string> = {
-	primary: "bg-blue text-white enabled:hover:bg-[#1645b0]",
-	secondary:
-		"border border-[#cbd5e3] bg-white text-[#243b56] enabled:hover:bg-[#f1f5fb]",
-	danger:
-		"border border-[#e3b4ae] bg-[#ffedeb] text-[#a33b31] enabled:hover:bg-[#ffe0dc]",
+	primary: `${BOXED} bg-blue text-white enabled:hover:bg-[#1645b0]`,
+	secondary: `${BOXED} border border-[#cbd5e3] bg-white text-[#243b56] enabled:hover:bg-[#f1f5fb]`,
+	danger: `${BOXED} border border-[#e3b4ae] bg-[#ffedeb] text-[#a33b31] enabled:hover:bg-[#ffe0dc]`,
 	text: "rounded-[5px] bg-transparent p-2 text-blue",
 };
 
