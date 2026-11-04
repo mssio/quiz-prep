@@ -1,4 +1,4 @@
-# Quiz Workspace: React conversion + quiz management — design
+# Quiz Prep: React conversion + quiz management — design
 
 Date: 2026-11-03 (updated 2026-11-04)
 Status: awaiting owner approval
@@ -23,7 +23,9 @@ Today the site merges every uploaded file into one pool and forgets your score a
 
 - Quiz-taking (question formats, grading, flags, results review, short-answer self-assessment, retry missed) works the same as the old site.
 - The Markdown format and import rules are unchanged. A file that imports today imports in the new app with the same questions, and a file that's rejected today is rejected with the same messages.
+- The app is named **Quiz Prep** (decided by the owner). The page title and top bar change, and the "Q•" logo stays. The old site's name "Quiz Workspace" is not used in the new app. The repo folder keeps its name.
 - Quiz management works as described in "Quiz management".
+- Mathematical and statistical LaTeX displays properly (see "Math").
 - The code is TypeScript, split into small files that each do one clear job. A reader can find "how is matching graded?" or "what does the ordering question look like?" by file name.
 - The pure logic (parsing, grading, attempts, history stats, storage) is kept separate from React and covered by tests.
 - The example banks in `.private/example-input/` import with the same question counts as today.
@@ -45,7 +47,8 @@ Today the site merges every uploaded file into one pool and forgets your score a
 - An invalid file that is rejected today is accepted.
 - Retry attempts change a quiz's best or average score.
 - Reset scores on one quiz touches any other quiz.
-- Imported text is rendered as HTML. It must stay plain text. React's default escaping already handles this, so never use `dangerouslySetInnerHTML`.
+- Imported text is rendered as HTML. Apart from math, it must stay plain text. React's default escaping already handles this. The **only** allowed use of `dangerouslySetInnerHTML` is inside the `MathText` component, for KaTeX's output (see "Math").
+- A dollar amount such as `$62,400` turns into math or garbles the text around it.
 - The new code is as dense or clever as the old code. Readability is the point.
 
 ## Constraints
@@ -86,6 +89,7 @@ The old site has **zero** dependencies. A hand-written part is replaced only whe
 | `storage.js` hand-written validation | `zod` schemas |
 | `styles.css` | Tailwind classes. The 6 old colour variables become `@theme` tokens. |
 | `node --test` | `vitest` |
+| (new) math rendering | `katex` |
 
 These stay hand-written: the Markdown parser (it's specific to this format), the Fisher–Yates shuffle, and the native `<dialog>` used for confirmations. `crypto.randomUUID()` is used for ids. No other packages.
 
@@ -183,8 +187,8 @@ Build it in two phases, so that "nothing broke" can be checked before new featur
 
 The app is for study material and test preparation, and people share quiz sets with each other this way.
 
-- **Export** downloads **one JSON text file** containing every quiz's name, filename, `#` title, course, and questions with their answer keys. It contains **only questions and answer keys**: no score history and no unfinished sessions. Export is disabled when there are no quizzes. *(My call: JSON rather than a zip, which would need another package and add nothing for small text data.)*
-- The file has a small header, for example `{format: 'quiz-workspace-export', version: 1, exportedAt, quizzes: [...]}`, and has its own `zod` schema.
+- **Export** downloads **one JSON text file** (`quiz-prep-export.json`) containing every quiz's name, filename, `#` title, course, and questions with their answer keys. It contains **only questions and answer keys**: no score history and no unfinished sessions. Export is disabled when there are no quizzes. *(My call: JSON rather than a zip, which would need another package and add nothing for small text data.)*
+- The file has a small header, for example `{format: 'quiz-prep-export', version: 1, exportedAt, quizzes: [...]}`, and has its own `zod` schema.
 - **Import** is a separate button from the upload box:
   - **Upload** adds Markdown files as new quizzes through the naming step.
   - **Import** takes an export file and **replaces the entire database**: all quizzes, history and unfinished sessions. Quiz names come from the file, so there's no naming step.
@@ -194,6 +198,32 @@ The app is for study material and test preparation, and people share quiz sets w
 - Importing a file is treated as loading data, never as code. Text stays plain text, as with Markdown files.
 
 Merging an import into existing quizzes is out of scope, and could come in a later phase.
+
+### Math (requested by the owner)
+
+The app must display mathematical and statistical LaTeX, such as `$\bar{x}$`, `$\sigma^2$` and `$$z = \frac{x - \mu}{\sigma}$$`. Rendering uses **KaTeX** (`katex` on npm), with its CSS and fonts bundled by Vite so there are still no network requests. Math is a display concern only: the parser, grading, storage and export all keep the raw text.
+
+**Where math renders:** question prompts, options, matching left and right items, ordering items, explanations, and correct or model answers on the results screen. What the learner typed (blanks, short answers) stays plain text.
+
+**How to write it** *(my call, documented in the README alongside the question format):*
+
+| Syntax | Result |
+|---|---|
+| `$...$` or `\(...\)` | Inline math |
+| `$$...$$` or `\[...\]` | Display math, on its own line |
+| `\$` | A literal dollar sign |
+
+**Dollar amounts must keep working.** The example banks contain `$62,400`. A small hand-written, unit-tested tokenizer (`lib/math-text.ts`) splits text into plain and math parts using the Pandoc rule: an opening `$` must be followed by a non-space, and a closing `$` must be preceded by a non-space and not followed by a digit. So `$62,400`, `$5 and $10` and `$5-$10` all stay plain text. Math is not detected inside fenced code blocks or inline backtick spans.
+
+Plain words are not converted. "mu" and "sigma" in the current example files stay as words, and authors write `$\mu$` to get a symbol.
+
+**`MathText` component.** One component renders all of the above: plain parts as normal React text, math parts through `katex.renderToString`. Its fixed options are `trust: false`, `strict: 'ignore'`, `throwOnError: false`, a finite `maxSize` and the default `maxExpand`. These matter because import means files come from other people: `trust: false` blocks `\href`, `\includegraphics` and the `\html…` commands.
+
+Broken LaTeX never rejects a file or crashes a screen. It shows as its source text in KaTeX's error colour.
+
+**Matching questions.** The old site uses native `<select>` dropdowns, and an `<option>` can't display rendered math. *(My call:)* when any right-hand item in a question contains math, show the right-hand items as a lettered list with rendered math above the rows, and let the dropdowns list the letters (A, B, C…). Matching questions without math look exactly as they do today.
+
+Wide display math scrolls inside its own container, so the page doesn't scroll sideways at phone width.
 
 ## Data shape (decided with the owner)
 
@@ -212,7 +242,7 @@ Progress saved by the old site doesn't need to carry over, so the data is redesi
   - A question's id is `<quizId>:<number>`. Ids have to be unique across all quizzes so a future mixed attempt works, and a content hash no longer guarantees that because duplicates are allowed.
   - The SHA-256 content id is dropped.
 - **Attempts** keep the old structure: the questions snapshot, order, display orders, responses, flags, current index, status and assessments. They also gain `isRetry`.
-- **Storage:** the `localStorage` key is `quiz-workspace:v2`, in the envelope `{version: 2, state: {quizzes}}`.
+- **Storage:** the `localStorage` key is `quiz-prep:v1`, in the envelope `{version: 1, state: {quizzes}}`.
   - The `zod` schemas are the single source of truth. The TypeScript types are inferred from them with `z.infer`.
   - The schemas also check that the data is consistent: answers refer to options that exist, responses belong to questions in the attempt, and so on. That covers everything the old `storage.js` checked.
 
@@ -302,6 +332,7 @@ src/
     storage.ts             # loadState(), saveState(), storageStatus()
     shuffle.ts
     formats.ts             # format names / labels
+    math-text.ts           # splits text into plain and math parts
   state/
     workspace.tsx          # React context + reducer wrapping lib/, persists on change
   components/
@@ -310,7 +341,7 @@ src/
       ShortAnswer.tsx   Matching.tsx     Ordering.tsx
       QuestionView.tsx     # picks the right one
     quizzes/               # QuizRow, AddQuizzes (upload + naming step), HistoryTable, ...
-    ConfirmDialog.tsx  SaveWarning.tsx  Layout pieces ...
+    MathText.tsx  ConfirmDialog.tsx  SaveWarning.tsx  Layout pieces ...
   routes/
     __root.tsx  index.tsx
     quizzes/$quizId/index.tsx  play.tsx  results.tsx
@@ -343,6 +374,7 @@ For state, a single React context with a reducer is enough. No state library.
   - an export contains questions and answer keys but no history or attempts
   - exporting then importing restores the same quizzes, names and questions
   - importing replaces all existing data, and an invalid file changes nothing
+  - the math tokenizer handles every syntax in "Math", leaves `$62,400`, `$5 and $10`, `$5-$10`, `\$` and code spans alone, and `trust: false` output contains no link or image from `\href`/`\includegraphics`
 - **Schema tests.** The `zod` schema accepts the state produced by the app and rejects the kinds of invalid state the old `storage.js` rejected.
 - **Build and lint.** `bun run build` succeeds and `bun run check` (Biome) is clean.
 - **Manual pass in the browser:**
@@ -354,6 +386,7 @@ For state, a single React context with a reducer is enough. No state library.
   - rename, reset scores, delete and reset everything, each through its confirmation
   - export, reset everything, import the file, and confirm the quizzes return with their names and no scores
   - try importing a non-export file and confirm nothing changes
+  - import a new `tests/fixtures/math.md` fixture and check math in a prompt, options, a matching question, an ordering question, an explanation and the results review, plus broken LaTeX and a dollar amount
   - reload on `/quizzes/<id>/play`
   - use the browser's back button between routes
   - check the layout at about 400px wide
