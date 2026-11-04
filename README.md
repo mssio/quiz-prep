@@ -13,7 +13,7 @@ Each question starts with `## Q<number>`, followed by `- **Format:**`, `- **Ques
 | single-choice | Options use `  - A. Text`; the answer is one option letter |
 | multi-select | Same options; the answer is comma-separated letters, at least two |
 | true-false | The answer is `True` or `False` |
-| fill-in-blank | Answers are numbered lines, one per blank; a prompt without blank markers is also supported |
+| fill-in-blank | One answer goes inline; two or more are numbered lines, one per blank. A prompt without blank markers is also supported. Numeric answers are graded by value |
 | short-answer | The answer is model text, which the learner assesses after submitting |
 | matching | Numbered Left items, lettered Right options; the answer looks like `1-B, 2-A` |
 | ordering | Numbered Items; the answer lists each original item's target position, such as `2, 3, 1` |

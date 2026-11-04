@@ -19,7 +19,7 @@ export const fencePattern = /^(`{3,}|~{3,})/;
 const headingPattern = /^##\s+Q(\d+)\s*$/;
 const fieldPattern = /^\s*-\s+\*\*([\w -]+):\*\*\s*(.*)$/;
 const letterItemPattern = /^\s*-\s+([A-Z])\.\s+(.+)$/;
-const numberItemPattern = /^\s*(\d+)\.\s+(.+)$/;
+export const numberItemPattern = /^\s*(\d+)\.\s+(.+)$/;
 
 export function normalizeText(text: string): string {
 	return text.replace(/^﻿/, "").replace(/\r\n?/g, "\n");

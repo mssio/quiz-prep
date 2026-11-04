@@ -1,3 +1,4 @@
+import { isSameNumber } from "#/lib/numeric-answer";
 import type { Attempt, Question, ResponseValue } from "#/lib/schema";
 
 export type GradeStatus = "correct" | "incorrect" | "pending" | "ungraded";
@@ -92,7 +93,9 @@ function isCorrect(q: Question, response: ResponseValue): boolean {
 		case "fill-in-blank": {
 			const typed = response as string[];
 			return (q.answer ?? []).every(
-				(expected, i) => normalize(expected) === normalize(typed[i]),
+				(expected, i) =>
+					normalize(expected) === normalize(typed[i]) ||
+					isSameNumber(expected, typed[i]),
 			);
 		}
 		case "matching": {

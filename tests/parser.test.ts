@@ -29,6 +29,27 @@ test("all seven formats keep typed answers and multiline explanation", () => {
 	expect(q[4].explanation).toMatch(/First line\.\n\s*Second line/);
 });
 
+function blankFile(question: string, answer: string) {
+	return `## Q1\n- **Format:** fill-in-blank\n- **Question:** ${question}\n- **Answer:**${answer}`;
+}
+
+test("fill-in-blank accepts one inline answer", () => {
+	const noMarker = parsed(blankFile("How many?", " 0.35"), "a.md");
+	expect(noMarker.questions[0].answer).toEqual(["0.35"]);
+	const oneMarker = parsed(blankFile("The ____ value.", " median"), "a.md");
+	expect(oneMarker.questions[0].answer).toEqual(["median"]);
+});
+
+test("fill-in-blank still accepts a numbered single answer", () => {
+	const r = parsed(blankFile("How many?", "\n  1. 0.35"), "a.md");
+	expect(r.questions[0].answer).toEqual(["0.35"]);
+});
+
+test("fill-in-blank rejects one inline answer for two blanks", () => {
+	const r = parseQuizFile(blankFile("____ and ____.", " median"), "a.md");
+	expect(r.ok).toBe(false);
+});
+
 test("BOM and CRLF parse identically to LF", () => {
 	const crlf = `﻿${chOneFixture.replaceAll("\n", "\r\n")}`;
 	expect(parsed(crlf, "a.md").questions).toEqual(

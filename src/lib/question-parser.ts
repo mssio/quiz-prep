@@ -1,4 +1,9 @@
-import { type Block, type ListEntry, parseList } from "#/lib/markdown-blocks";
+import {
+	type Block,
+	type ListEntry,
+	numberItemPattern,
+	parseList,
+} from "#/lib/markdown-blocks";
 import type { QuestionContent } from "#/lib/schema";
 
 type Fields = Record<string, string>;
@@ -61,8 +66,13 @@ function parseTrueFalseAnswer(answer: string) {
 	return answer.toLowerCase() === "true";
 }
 
+function blankEntries(answer: string): ListEntry[] {
+	const inline = !answer.includes("\n") && !numberItemPattern.test(answer);
+	return inline ? [{ id: "1", text: answer }] : parseList(answer, "numbers");
+}
+
 function parseFillInBlankAnswer(answer: string, prompt: string) {
-	const entries = parseList(answer, "numbers");
+	const entries = blankEntries(answer);
 	const inOrder = entries.every(
 		(entry, index) => entry.id === String(index + 1),
 	);

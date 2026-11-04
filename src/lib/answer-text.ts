@@ -43,10 +43,12 @@ export function answerText(
 				.join("\n");
 		case "true-false":
 			return value ? "True" : "False";
-		case "fill-in-blank":
-			return numberedLines(
-				(value as string[]).map((text) => text.trim() || NOT_ANSWERED),
+		case "fill-in-blank": {
+			const lines = (value as string[]).map(
+				(text) => text.trim() || NOT_ANSWERED,
 			);
+			return lines.length === 1 ? lines[0] : numberedLines(lines);
+		}
 		case "matching": {
 			const picked = value as Record<string, string>;
 			return q.left

@@ -92,7 +92,9 @@ No options. The answer is `True` or `False`.
 
 ### fill-in-blank
 
-Write each blank as exactly four underscores: `____`. The answer is a numbered list starting at 1, with one line per blank in order, and the number of lines must equal the number of blanks. The importer compares a typed answer with this text exactly, apart from capitalisation and extra spaces, so give one exact answer per blank. If the source accepts several answers for one blank, use the first and add a warning.
+Write each blank as exactly four underscores: `____`. A single answer goes inline on the `Answer` line, with no number. Two or more answers are a numbered list starting at 1, with one line per blank in order, and the number of lines must equal the number of blanks. The importer compares a typed text answer exactly, apart from capitalisation and extra spaces, so give one exact answer per blank. If the source accepts several answers for one blank, use the first and add a warning.
+
+Numeric answers are compared by value, so write the number once in its most precise form, such as `0.66666667`. Learners can then type `0.67`, `66.67%` or `67%`, as long as a rounded answer keeps at least two decimal places. Fractions such as `2/3` aren't accepted.
 
 ```
 ## Q4
@@ -101,6 +103,13 @@ Write each blank as exactly four underscores: `____`. The answer is a numbered l
 - **Answer:**
   1. median
   2. mode
+```
+
+```
+## Q8
+- **Format:** fill-in-blank
+- **Question:** Among 70 trained employees, 56 pass. What is the pass rate? Enter a decimal or percentage.
+- **Answer:** 0.8
 ```
 
 ### short-answer
@@ -182,7 +191,7 @@ If you can't determine the answer with confidence, write `- **Answer:** unknown`
 | Match, pair, connect | `matching` |
 | Rank, sequence, put in order | `ordering` |
 
-A question without blanks can still be `fill-in-blank`. Leave the prompt as written, and give a single numbered answer.
+A question without blanks can still be `fill-in-blank`. Leave the prompt as written, and give a single inline answer.
 
 If a question fits none of these, such as a hotspot, drawing, file upload or calculation with a formula editor, **don't force it**. Leave it out and report an error. If you can't tell which format a question is, pick the closest and add a warning, or report an error if no format is a reasonable fit.
 
@@ -243,7 +252,7 @@ For every question, confirm:
 - single-choice: the answer is one listed letter.
 - multi-select: the answer has at least two different listed letters.
 - true-false: the answer is `True` or `False`.
-- fill-in-blank: the count of `____` equals the count of numbered answers, numbered from 1 with no gaps.
+- fill-in-blank: the count of `____` equals the count of answers. A single answer is inline; several are numbered from 1 with no gaps.
 - matching: every left number appears once, and every letter is a listed right item.
 - ordering: the answer has one number per item and uses each position from 1 to the item count exactly once.
 - Every answer came from the source, or is listed in the report as AI-supplied, or is `unknown` with a warning.

@@ -193,6 +193,12 @@ test("a retry of a retry stays a retry", () => {
 	expect(again?.isRetry).toBe(true);
 });
 
+test("answerText shows a single fill-in-blank answer without a number", () => {
+	const one = { ...blank, answer: ["0.35"] } as Question;
+	expect(answerText(one, ["0.35"], true)).toBe("0.35");
+	expect(answerText(one, [" "])).toBe("Not answered");
+});
+
 test("answerText", () => {
 	expect(answerText(tf, false)).toBe("False");
 	expect(answerText(single, undefined)).toBe("Not answered");
