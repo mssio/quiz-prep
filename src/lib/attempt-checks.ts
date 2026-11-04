@@ -1,12 +1,11 @@
 import { hasUniqueValues } from "#/lib/answer-checks";
+import type { Choice, Question } from "#/lib/question-schema";
 
 // Consistency checks for an attempt. Each returns an error message,
 // or null when everything is fine.
 
-type Choice = { id: string; text: string };
-type AttemptQuestion = { id: string; format: string } & Record<string, unknown>;
 type AttemptShape = {
-	questions: AttemptQuestion[];
+	questions: Question[];
 	order: string[];
 	displayOrders: Record<string, unknown[]>;
 	responses: Record<string, unknown>;
@@ -19,16 +18,20 @@ function hasChoice(choices: Choice[], id: unknown): boolean {
 	return choices.some((choice) => choice.id === id);
 }
 
-function choiceIdsOf(question: AttemptQuestion): (string | boolean)[] {
-	if (question.format === "true-false") return [true, false];
-	const choices = choicesOf(question);
-	return choices.map((choice) => choice.id);
-}
-
-function choicesOf(question: AttemptQuestion): Choice[] {
-	if (question.format === "matching") return question.right as Choice[];
-	if (question.format === "ordering") return question.items as Choice[];
-	return question.options as Choice[];
+function choiceIdsOf(question: Question): (string | boolean)[] {
+	switch (question.format) {
+		case "true-false":
+			return [true, false];
+		case "matching":
+			return question.right.map((choice) => choice.id);
+		case "ordering":
+			return question.items.map((choice) => choice.id);
+		case "single-choice":
+		case "multi-select":
+			return question.options.map((choice) => choice.id);
+		default:
+			return [];
+	}
 }
 
 function isPermutation(actual: unknown[], expected: unknown[]): boolean {
@@ -37,43 +40,41 @@ function isPermutation(actual: unknown[], expected: unknown[]): boolean {
 	return expected.every((value) => actual.includes(value));
 }
 
-function isMatchingResponse(question: AttemptQuestion, response: unknown) {
+function isStringList(value: unknown): value is string[] {
+	return Array.isArray(value) && value.every((v) => typeof v === "string");
+}
+
+function isMatchingResponse(
+	left: Choice[],
+	right: Choice[],
+	response: unknown,
+) {
 	if (typeof response !== "object" || response === null) return false;
 	if (Array.isArray(response)) return false;
-	const left = question.left as Choice[];
-	const right = question.right as Choice[];
 	return Object.entries(response).every(
 		([leftId, rightId]) =>
 			hasChoice(left, leftId) && (rightId === "" || hasChoice(right, rightId)),
 	);
 }
 
-function isStringList(value: unknown): value is string[] {
-	return Array.isArray(value) && value.every((v) => typeof v === "string");
-}
-
-function isOrderingResponse(question: AttemptQuestion, response: unknown) {
-	const items = question.items as Choice[];
+function isOrderingResponse(items: Choice[], response: unknown) {
 	if (!isStringList(response)) return false;
-	return (
-		hasUniqueValues(response) &&
-		response.length === items.length &&
-		response.every((id) => hasChoice(items, id))
-	);
+	if (!hasUniqueValues(response) || response.length !== items.length)
+		return false;
+	return response.every((id) => hasChoice(items, id));
 }
 
-function isMultiSelectResponse(question: AttemptQuestion, response: unknown) {
-	const options = question.options as Choice[];
+function isMultiSelectResponse(options: Choice[], response: unknown) {
 	if (!isStringList(response)) return false;
 	return (
 		hasUniqueValues(response) && response.every((id) => hasChoice(options, id))
 	);
 }
 
-function hasRightKind(question: AttemptQuestion, response: unknown): boolean {
+function hasRightKind(question: Question, response: unknown): boolean {
 	switch (question.format) {
 		case "single-choice":
-			return hasChoice(question.options as Choice[], response);
+			return hasChoice(question.options, response);
 		case "true-false":
 			return typeof response === "boolean";
 		case "short-answer":
@@ -81,17 +82,15 @@ function hasRightKind(question: AttemptQuestion, response: unknown): boolean {
 		case "fill-in-blank":
 			return isStringList(response);
 		case "multi-select":
-			return isMultiSelectResponse(question, response);
+			return isMultiSelectResponse(question.options, response);
 		case "ordering":
-			return isOrderingResponse(question, response);
+			return isOrderingResponse(question.items, response);
 		case "matching":
-			return isMatchingResponse(question, response);
-		default:
-			return false;
+			return isMatchingResponse(question.left, question.right, response);
 	}
 }
 
-function checkQuestion(attempt: AttemptShape, question: AttemptQuestion) {
+function checkQuestion(attempt: AttemptShape, question: Question) {
 	const displayOrder = attempt.displayOrders[question.id];
 	if (
 		!Array.isArray(displayOrder) ||

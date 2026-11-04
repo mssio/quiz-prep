@@ -8,7 +8,7 @@ import {
 	reportIssue,
 } from "#/lib/answer-checks";
 
-const choiceSchema = z.object({ id: z.string(), text: z.string() });
+export const choiceSchema = z.object({ id: z.string(), text: z.string() });
 
 const choiceListSchema = z
 	.array(choiceSchema)
@@ -83,7 +83,8 @@ export const questionContentSchema = z
 		reportIssue(ctx, checkAnswer(question));
 	});
 
-type QuestionContent = z.infer<typeof questionContentSchema>;
+export type Choice = z.infer<typeof choiceSchema>;
+export type QuestionContent = z.infer<typeof questionContentSchema>;
 
 function checkAnswer(question: QuestionContent): string | null {
 	switch (question.format) {
@@ -103,3 +104,5 @@ function checkAnswer(question: QuestionContent): string | null {
 export const questionSchema = questionContentSchema.and(
 	z.object({ id: z.string(), quizId: z.string() }),
 );
+
+export type Question = z.infer<typeof questionSchema>;

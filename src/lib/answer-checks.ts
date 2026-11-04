@@ -1,9 +1,8 @@
 import type { z } from "zod";
+import type { Choice } from "#/lib/question-schema";
 
 // Answer checks for each question format. Each returns an error message,
 // or null when the answer is fine. A null answer (unknown) is always fine.
-
-type Choice = { id: string; text: string };
 
 export function hasUniqueValues(values: unknown[]): boolean {
 	return new Set(values).size === values.length;

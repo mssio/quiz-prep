@@ -1,6 +1,6 @@
 import { expect, test, vi } from "vitest";
 import { newId } from "#/lib/ids";
-import { questionSchema } from "#/lib/schema";
+import { questionSchema, quizSchema, workspaceStateSchema } from "#/lib/schema";
 
 const base = { id: "q", quizId: "z", number: 1, prompt: "P", explanation: "" };
 const two = [
@@ -92,4 +92,33 @@ test("newId works without crypto.randomUUID", () => {
 	expect(newId()).toMatch(/^[0-9a-f-]{36}$/);
 	expect(newId()).not.toBe(newId());
 	vi.unstubAllGlobals();
+});
+
+const validQuiz = {
+	id: "z",
+	name: "Quiz",
+	filename: "quiz.md",
+	title: "Title",
+	course: "Course",
+	questions: [{ ...single }],
+	history: [],
+	attempt: null,
+	addedAt: "2026-01-01T00:00:00.000Z",
+};
+
+test("a valid quiz and workspace state pass", () => {
+	expect(quizSchema.safeParse(validQuiz).success).toBe(true);
+	expect(workspaceStateSchema.safeParse({ quizzes: [validQuiz] }).success).toBe(
+		true,
+	);
+});
+
+test("a quiz with a question from another quiz is rejected", () => {
+	const foreign = { ...validQuiz, questions: [{ ...single, quizId: "other" }] };
+	expect(quizSchema.safeParse(foreign).success).toBe(false);
+});
+
+test("a state with two quizzes sharing an id is rejected", () => {
+	const state = { quizzes: [validQuiz, { ...validQuiz }] };
+	expect(workspaceStateSchema.safeParse(state).success).toBe(false);
 });

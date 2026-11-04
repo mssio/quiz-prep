@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { hasUniqueValues } from "#/lib/answer-checks";
 import { checkAttempt } from "#/lib/attempt-checks";
 import { questionContentSchema, questionSchema } from "#/lib/question-schema";
 
@@ -45,23 +46,43 @@ export const historyEntrySchema = z.object({
 	isRetry: z.boolean(),
 });
 
-export const quizSchema = z.object({
-	id: z.string(),
-	name: z.string(),
-	filename: z.string(),
-	title: z.string(),
-	course: z.string(),
-	questions: z.array(questionSchema).min(1),
-	history: z.array(historyEntrySchema),
-	attempt: attemptSchema.nullable(),
-	addedAt: z.string(),
-});
+export const quizSchema = z
+	.object({
+		id: z.string(),
+		name: z.string(),
+		filename: z.string(),
+		title: z.string(),
+		course: z.string(),
+		questions: z.array(questionSchema).min(1),
+		history: z.array(historyEntrySchema),
+		attempt: attemptSchema.nullable(),
+		addedAt: z.string(),
+	})
+	.superRefine((quiz, ctx) => {
+		const foreign = quiz.questions.some(
+			(question) => question.quizId !== quiz.id,
+		);
+		if (!foreign) return;
+		ctx.addIssue({
+			code: "custom",
+			message: "every question must belong to its quiz",
+			path: ["questions"],
+		});
+	});
 
-export const workspaceStateSchema = z.object({ quizzes: z.array(quizSchema) });
+export const workspaceStateSchema = z
+	.object({ quizzes: z.array(quizSchema) })
+	.superRefine((state, ctx) => {
+		const ids = state.quizzes.map((quiz) => quiz.id);
+		if (hasUniqueValues(ids)) return;
+		ctx.addIssue({
+			code: "custom",
+			message: "quiz ids must be unique",
+			path: ["quizzes"],
+		});
+	});
 
-export type Choice = { id: string; text: string };
-export type QuestionContent = z.infer<typeof questionContentSchema>;
-export type Question = z.infer<typeof questionSchema>;
+export type { Choice, Question, QuestionContent } from "#/lib/question-schema";
 export type ResponseValue = z.infer<typeof responseValueSchema>;
 export type Attempt = z.infer<typeof attemptSchema>;
 export type HistoryEntry = z.infer<typeof historyEntrySchema>;
