@@ -1,0 +1,158 @@
+import {
+	createFileRoute,
+	Link,
+	Navigate,
+	useNavigate,
+} from "@tanstack/react-router";
+import { useConfirm } from "#/components/ConfirmDialog";
+import { QuizSidebar } from "#/components/QuizSidebar";
+import { QuestionView } from "#/components/questions/QuestionView";
+import {
+	Button,
+	PageHeading,
+	Panel,
+	PanelBody,
+	WorkspaceGrid,
+} from "#/components/ui";
+import { useFocusMain } from "#/components/useFocusMain";
+import type { AttemptAction } from "#/lib/attempt";
+import { formatNames } from "#/lib/formats";
+import { isAnswered } from "#/lib/grading";
+import type { Attempt } from "#/lib/schema";
+import { storageStatus } from "#/lib/storage";
+import { findQuiz } from "#/lib/workspace";
+import { useWorkspace } from "#/state/workspace";
+
+export const Route = createFileRoute("/quizzes/$quizId/play")({
+	component: PlayScreen,
+});
+
+function finishCopy(attempt: Attempt): string {
+	const unanswered = attempt.questions.filter(
+		(q) => !isAnswered(q, attempt.responses[q.id]),
+	).length;
+	const flagged = Object.values(attempt.flags).filter(Boolean).length;
+	return `${unanswered} unanswered · ${flagged} flagged for review. Once submitted, your answers are locked and your results are revealed.`;
+}
+
+function PlayScreen() {
+	const { quizId } = Route.useParams();
+	const { state, dispatch, saveOk } = useWorkspace();
+	const confirm = useConfirm();
+	const focusMain = useFocusMain();
+	const navigate = useNavigate();
+	const quiz = findQuiz(state, quizId);
+
+	if (!quiz) return <Navigate to="/" />;
+	const attempt = quiz.attempt;
+	if (!attempt || attempt.status !== "active") {
+		return <Navigate to="/quizzes/$quizId" params={{ quizId }} />;
+	}
+	const question = attempt.questions.find(
+		(q) => q.id === attempt.order[attempt.currentIndex],
+	);
+	if (!question) return <Navigate to="/" />;
+
+	const isLast = attempt.currentIndex === attempt.order.length - 1;
+	const flagged = !!attempt.flags[question.id];
+
+	function send(action: AttemptAction) {
+		dispatch({ type: "attempt", quizId, action });
+	}
+
+	function goTo(index: number) {
+		send({ type: "navigate", index });
+		focusMain();
+	}
+
+	async function finish() {
+		if (!attempt) return;
+		const confirmed = await confirm({
+			title: "Finish this quiz?",
+			copy: finishCopy(attempt),
+			actionText: "Finish quiz",
+		});
+		if (!confirmed) return;
+		send({ type: "submit", at: new Date().toISOString() });
+		navigate({ to: "/quizzes/$quizId/results", params: { quizId } });
+	}
+
+	return (
+		<>
+			<Link
+				to="/quizzes/$quizId"
+				params={{ quizId }}
+				className="mb-[17px] inline-block p-2 text-sm"
+			>
+				Question banks
+			</Link>
+			<PageHeading
+				eyebrow="STUDY SESSION"
+				title={`Question ${attempt.currentIndex + 1} of ${attempt.questions.length}`}
+				lede={storageStatus(saveOk).session}
+			/>
+			<WorkspaceGrid
+				main={
+					<Panel>
+						<PanelBody>
+							<div className="flex items-center justify-between gap-3">
+								<span className="rounded-md bg-[#edf2fa] px-[9px] py-1.5 text-xs font-[650] text-[#415876]">
+									{formatNames[question.format]}
+								</span>
+								<Button
+									variant="secondary"
+									aria-pressed={flagged}
+									className={
+										flagged
+											? "!border-[#d9b861] !bg-[#fff1cf] !text-[#774d0b]"
+											: ""
+									}
+									onClick={() =>
+										send({ type: "flag", questionId: question.id })
+									}
+								>
+									{flagged ? "⚑ Flagged for review" : "⚐ Flag for review"}
+								</Button>
+							</div>
+							<p className="mt-[15px] mb-5 text-[13px] break-words text-muted">
+								{quiz.name} · Q{question.number}
+							</p>
+							<QuestionView
+								key={question.id}
+								question={question}
+								response={attempt.responses[question.id]}
+								displayOrder={attempt.displayOrders[question.id]}
+								onAnswer={(response) =>
+									send({ type: "answer", questionId: question.id, response })
+								}
+							/>
+						</PanelBody>
+						<div className="flex justify-between gap-3 border-t border-line bg-[#fbfcfe] px-7 py-[21px]">
+							<Button
+								variant="secondary"
+								disabled={attempt.currentIndex === 0}
+								onClick={() => goTo(attempt.currentIndex - 1)}
+							>
+								Previous
+							</Button>
+							<Button
+								variant="primary"
+								onClick={isLast ? finish : () => goTo(attempt.currentIndex + 1)}
+							>
+								{isLast ? "Review & finish" : "Next question"}
+							</Button>
+						</div>
+					</Panel>
+				}
+				aside={
+					<QuizSidebar
+						attempt={attempt}
+						saveOk={saveOk}
+						onNavigate={goTo}
+						onFinish={finish}
+					/>
+				}
+			/>
+		</>
+	);
+}
