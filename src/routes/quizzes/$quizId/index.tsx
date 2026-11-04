@@ -21,6 +21,7 @@ import {
 import { createAttempt } from "#/lib/attempt";
 import { quizStats } from "#/lib/history";
 import type { Quiz } from "#/lib/schema";
+import { replaceCopy } from "#/lib/session";
 import { findQuiz, type QuizStatus, quizStatus } from "#/lib/workspace";
 import { useWorkspace } from "#/state/workspace";
 
@@ -75,13 +76,6 @@ function UnfinishedNotice({
 	return null;
 }
 
-function replaceCopy(status: QuizStatus): string {
-	const base =
-		"This replaces the saved attempt and its answers. Your imported files will stay available.";
-	if (status === "pending") return `${base} The pending score will be lost.`;
-	return base;
-}
-
 function HistoryPanel({ quiz, onReset }: { quiz: Quiz; onReset(): void }) {
 	return (
 		<Panel>
@@ -119,7 +113,7 @@ function QuizPage() {
 		if (status === "active" || status === "pending") {
 			const ok = await confirm({
 				title: "Start a new attempt?",
-				copy: replaceCopy(status),
+				copy: replaceCopy(status === "pending"),
 				actionText: "Start new attempt",
 			});
 			if (!ok) return;
@@ -145,7 +139,12 @@ function QuizPage() {
 				main={<HistoryPanel quiz={quiz} onReset={() => resetScores(quiz)} />}
 				aside={
 					<>
-						<SessionPanel quiz={quiz} saveOk={saveOk} onStart={start} />
+						<SessionPanel
+							key={quiz.id}
+							quiz={quiz}
+							saveOk={saveOk}
+							onStart={start}
+						/>
 						{status === "submitted" && (
 							<Link
 								to="/quizzes/$quizId/results"

@@ -5,3 +5,12 @@ export function parseCount(value: string, max: number): number | null {
 	if (count < 1 || count > max) return null;
 	return count;
 }
+
+const REPLACE_COPY =
+	"This replaces the saved attempt and its answers. Your questions and score history will stay.";
+
+// The Start-confirm text. A pending attempt has a score that is not recorded yet.
+export function replaceCopy(pending: boolean): string {
+	if (pending) return `${REPLACE_COPY} The pending score will be lost.`;
+	return REPLACE_COPY;
+}

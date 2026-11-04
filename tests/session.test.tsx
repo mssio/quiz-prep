@@ -3,7 +3,7 @@ import { expect, test } from "vitest";
 import { HistoryTable } from "#/components/quizzes/HistoryTable";
 import { SessionPanel } from "#/components/quizzes/SessionPanel";
 import type { HistoryEntry, Quiz } from "#/lib/schema";
-import { parseCount } from "#/lib/session";
+import { parseCount, replaceCopy } from "#/lib/session";
 import { allFormatQuestions } from "./helpers";
 
 test.each([
@@ -78,4 +78,13 @@ test("session panel defaults the count to the question total", () => {
 	expect(h).toContain(`value="${quiz.questions.length}"`);
 	expect(h).toContain("Start quiz");
 	expect(h).not.toContain("Choose a whole number");
+});
+
+test("start-confirm copy mentions the pending score only when pending", () => {
+	const plain = replaceCopy(false);
+	expect(plain).toBe(
+		"This replaces the saved attempt and its answers. Your questions and score history will stay.",
+	);
+	expect(plain).not.toContain("pending");
+	expect(replaceCopy(true)).toBe(`${plain} The pending score will be lost.`);
 });
