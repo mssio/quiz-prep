@@ -4,6 +4,7 @@ import { useConfirm } from "#/components/ConfirmDialog";
 import { LibrarySidebar } from "#/components/quizzes/LibrarySidebar";
 import { NamingStep } from "#/components/quizzes/NamingStep";
 import { QuizRow } from "#/components/quizzes/QuizRow";
+import { useResetScores } from "#/components/quizzes/useResetScores";
 import {
 	CountPill,
 	PageHeading,
@@ -57,6 +58,7 @@ function QuizPanel({
 function QuizList() {
 	const { state, dispatch, saveOk } = useWorkspace();
 	const confirm = useConfirm();
+	const resetScores = useResetScores();
 	const [pending, setPending] = useState<PendingFile[] | null>(null);
 	const [busy, setBusy] = useState(false);
 	// A ref, so a drop during reading is ignored even before busy re-renders.
@@ -88,16 +90,6 @@ function QuizList() {
 				items?.map((item, i) => (i === index ? { ...item, name } : item)) ??
 				null,
 		);
-	}
-
-	async function resetScores(quiz: Quiz) {
-		const ok = await confirm({
-			title: "Reset scores?",
-			copy: `This clears the score history for "${quiz.name}". This can't be undone.`,
-			actionText: "Reset scores",
-			cancelText: "Cancel",
-		});
-		if (ok) dispatch({ type: "resetScores", quizId: quiz.id });
 	}
 
 	async function deleteQuiz(quiz: Quiz) {

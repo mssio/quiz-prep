@@ -1,5 +1,163 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import {
+	createFileRoute,
+	Link,
+	Navigate,
+	useNavigate,
+} from "@tanstack/react-router";
+import { useConfirm } from "#/components/ConfirmDialog";
+import { HistoryTable } from "#/components/quizzes/HistoryTable";
+import { QuizStatsBlock } from "#/components/quizzes/QuizStatsBlock";
+import { SessionPanel } from "#/components/quizzes/SessionPanel";
+import { useResetScores } from "#/components/quizzes/useResetScores";
+import {
+	Button,
+	Notice,
+	PageHeading,
+	Panel,
+	PanelBody,
+	PanelHeading,
+	WorkspaceGrid,
+} from "#/components/ui";
+import { createAttempt } from "#/lib/attempt";
+import { quizStats } from "#/lib/history";
+import type { Quiz } from "#/lib/schema";
+import { findQuiz, type QuizStatus, quizStatus } from "#/lib/workspace";
+import { useWorkspace } from "#/state/workspace";
 
 export const Route = createFileRoute("/quizzes/$quizId/")({
-	component: () => <Navigate to="/" />,
+	component: QuizPage,
 });
+
+const LINK_BUTTON =
+	"inline-flex min-h-11 items-center justify-center rounded-lg bg-blue px-[18px] py-3 text-sm font-[650] text-white no-underline hover:bg-[#1645b0]";
+
+function UnfinishedNotice({
+	quizId,
+	status,
+}: {
+	quizId: string;
+	status: QuizStatus;
+}) {
+	const params = { quizId };
+	if (status === "active") {
+		return (
+			<Notice>
+				<span>
+					You have an unfinished session. Starting a new one replaces it.
+				</span>
+				<Link
+					to="/quizzes/$quizId/play"
+					params={params}
+					className={LINK_BUTTON}
+				>
+					Resume
+				</Link>
+			</Notice>
+		);
+	}
+	if (status === "pending") {
+		return (
+			<Notice>
+				<span>
+					Your last attempt is waiting for self-assessment. Starting a new
+					session replaces it.
+				</span>
+				<Link
+					to="/quizzes/$quizId/results"
+					params={params}
+					className={LINK_BUTTON}
+				>
+					Finish assessing
+				</Link>
+			</Notice>
+		);
+	}
+	return null;
+}
+
+function replaceCopy(status: QuizStatus): string {
+	const base =
+		"This replaces the saved attempt and its answers. Your imported files will stay available.";
+	if (status === "pending") return `${base} The pending score will be lost.`;
+	return base;
+}
+
+function HistoryPanel({ quiz, onReset }: { quiz: Quiz; onReset(): void }) {
+	return (
+		<Panel>
+			<PanelHeading title="Score history">
+				<Button variant="text" onClick={onReset}>
+					Reset scores
+				</Button>
+			</PanelHeading>
+			<PanelBody>
+				<QuizStatsBlock stats={quizStats(quiz.history)} />
+				<hr className="my-6 border-line" />
+				<HistoryTable history={quiz.history} />
+				<p className="mt-4 text-[13px] text-muted">
+					Retries are shown but not counted in Best or Average.
+				</p>
+			</PanelBody>
+		</Panel>
+	);
+}
+
+function QuizPage() {
+	const { quizId } = Route.useParams();
+	const { state, dispatch, saveOk } = useWorkspace();
+	const confirm = useConfirm();
+	const resetScores = useResetScores();
+	const navigate = useNavigate();
+	const quiz = findQuiz(state, quizId);
+
+	if (!quiz) return <Navigate to="/" />;
+	const status = quizStatus(quiz);
+	const course = quiz.course || quiz.filename;
+
+	async function start(count: number) {
+		if (!quiz) return;
+		if (status === "active" || status === "pending") {
+			const ok = await confirm({
+				title: "Start a new attempt?",
+				copy: replaceCopy(status),
+				actionText: "Start new attempt",
+			});
+			if (!ok) return;
+		}
+		const attempt = createAttempt(quiz.questions, Math.random, count);
+		// Dispatch first, so the play route's guard finds the new attempt.
+		dispatch({ type: "startAttempt", quizId, attempt });
+		navigate({ to: "/quizzes/$quizId/play", params: { quizId } });
+	}
+
+	return (
+		<>
+			<Link to="/" className="mb-[17px] inline-block p-2 text-sm">
+				← All quizzes
+			</Link>
+			<PageHeading
+				eyebrow="Quiz"
+				title={quiz.name}
+				lede={`${quiz.questions.length} questions · ${course}`}
+			/>
+			<UnfinishedNotice quizId={quizId} status={status} />
+			<WorkspaceGrid
+				main={<HistoryPanel quiz={quiz} onReset={() => resetScores(quiz)} />}
+				aside={
+					<>
+						<SessionPanel quiz={quiz} saveOk={saveOk} onStart={start} />
+						{status === "submitted" && (
+							<Link
+								to="/quizzes/$quizId/results"
+								params={{ quizId }}
+								className="mt-4 inline-block p-2 text-sm"
+							>
+								View results
+							</Link>
+						)}
+					</>
+				}
+			/>
+		</>
+	);
+}
