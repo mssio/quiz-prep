@@ -4,7 +4,7 @@ import { ReviewList } from "#/components/results/ReviewList";
 import { Button, Notice } from "#/components/ui";
 import { retryMissed } from "#/lib/attempt";
 import { type Summary, summarize } from "#/lib/grading";
-import { findQuiz, resultsRedirect } from "#/lib/workspace";
+import { findQuiz, questionSource, resultsRedirect } from "#/lib/workspace";
 import { useWorkspace } from "#/state/workspace";
 
 export const Route = createFileRoute("/quizzes/$quizId/results")({
@@ -77,7 +77,7 @@ function Results() {
 			</p>
 			<ReviewList
 				attempt={attempt}
-				sourceName={quiz.name}
+				sourceOf={(question) => questionSource(question, state.quizzes)}
 				onAssess={(questionId, correct) =>
 					dispatch({
 						type: "attempt",

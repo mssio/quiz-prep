@@ -15,7 +15,7 @@ import { formatNames } from "#/lib/formats";
 import { isAnswered } from "#/lib/grading";
 import type { Attempt } from "#/lib/schema";
 import { storageStatus } from "#/lib/storage";
-import { findQuiz, playRedirect } from "#/lib/workspace";
+import { findQuiz, playRedirect, questionSource } from "#/lib/workspace";
 import { useWorkspace } from "#/state/workspace";
 
 export const Route = createFileRoute("/quizzes/$quizId/play")({
@@ -115,7 +115,7 @@ function PlayScreen() {
 								</Button>
 							</div>
 							<p className="mt-[15px] mb-5 text-[13px] break-words text-muted">
-								{quiz.name} · Q{question.number}
+								{questionSource(question, state.quizzes)} · Q{question.number}
 							</p>
 							<QuestionView
 								key={question.id}

@@ -1,13 +1,13 @@
 import { ReviewItem } from "#/components/results/ReviewItem";
-import type { Attempt } from "#/lib/schema";
+import type { Attempt, Question } from "#/lib/schema";
 
 type Props = {
 	attempt: Attempt;
-	sourceName: string;
+	sourceOf(question: Question): string;
 	onAssess(questionId: string, correct: boolean): void;
 };
 
-export function ReviewList({ attempt, sourceName, onAssess }: Props) {
+export function ReviewList({ attempt, sourceOf, onAssess }: Props) {
 	return (
 		<div className="mt-[25px]">
 			{attempt.order.map((id, index) => {
@@ -19,7 +19,7 @@ export function ReviewList({ attempt, sourceName, onAssess }: Props) {
 						question={question}
 						index={index}
 						attempt={attempt}
-						sourceName={sourceName}
+						sourceName={sourceOf(question)}
 						onAssess={(correct) => onAssess(id, correct)}
 					/>
 				);
