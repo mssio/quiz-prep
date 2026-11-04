@@ -145,6 +145,14 @@ export function splitMath(text: string): MathPart[] {
 	return out.parts;
 }
 
+// The text as a reader sees it with no math drawn, so "\$5" becomes "$5".
+// Math keeps its source between dollar signs.
+export function plainText(text: string): string {
+	return splitMath(text)
+		.map((part) => (part.kind === "text" ? part.text : `$${part.tex}$`))
+		.join("");
+}
+
 export function hasMath(text: string): boolean {
 	return splitMath(text).some((part) => part.kind === "math");
 }

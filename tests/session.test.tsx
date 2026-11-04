@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { expect, test } from "vitest";
 import { HistoryTable } from "#/components/quizzes/HistoryTable";
 import { SessionPanel } from "#/components/quizzes/SessionPanel";
+import { countLabel } from "#/lib/formats";
 import type { HistoryEntry, Quiz } from "#/lib/schema";
 import { parseCount, replaceCopy } from "#/lib/session";
 import { allFormatQuestions } from "./helpers";
@@ -87,4 +88,11 @@ test("start-confirm copy mentions the pending score only when pending", () => {
 	);
 	expect(plain).not.toContain("pending");
 	expect(replaceCopy(true)).toBe(`${plain} The pending score will be lost.`);
+});
+
+test("countLabel uses the singular for exactly one", () => {
+	expect(countLabel(1, "question")).toBe("1 question");
+	expect(countLabel(0, "question")).toBe("0 questions");
+	expect(countLabel(12, "question")).toBe("12 questions");
+	expect(countLabel(2, "quiz", "quizzes")).toBe("2 quizzes");
 });

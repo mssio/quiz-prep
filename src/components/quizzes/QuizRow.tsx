@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { type KeyboardEvent, useRef, useState } from "react";
 import { QuizStatsBlock } from "#/components/quizzes/QuizStatsBlock";
+import { countLabel } from "#/lib/formats";
 import { quizStats } from "#/lib/history";
 import type { Quiz } from "#/lib/schema";
 import { isValidName, type QuizStatus, quizStatus } from "#/lib/workspace";
@@ -15,7 +16,9 @@ type Props = {
 const LINK_BUTTON =
 	"inline-flex min-h-11 items-center justify-center rounded-lg bg-blue px-[18px] py-3 text-sm font-[650] text-white no-underline hover:bg-[#1645b0]";
 const ICON_BUTTON =
-	"min-h-11 rounded-md px-2.5 py-2 text-[13px] font-semibold text-muted hover:bg-[#f2f4f8]";
+	"min-h-11 rounded-md px-2.5 py-2 text-[13px] font-semibold hover:bg-[#f2f4f8]";
+const ICON_BUTTON_MUTED = `${ICON_BUTTON} text-muted`;
+const ICON_BUTTON_DANGER = `${ICON_BUTTON} text-[#a33b31]`;
 
 function StartLink({ quizId, status }: { quizId: string; status: QuizStatus }) {
 	const params = { quizId };
@@ -120,7 +123,7 @@ function QuizName({ quiz }: { quiz: Quiz }) {
 
 export function QuizRow({ quiz, onRename, onResetScores, onDelete }: Props) {
 	const [renaming, setRenaming] = useState(false);
-	const detail = `${quiz.questions.length} questions · ${quiz.course || quiz.filename}`;
+	const detail = `${countLabel(quiz.questions.length, "question")} · ${quiz.course || quiz.filename}`;
 
 	return (
 		<li className="flex flex-wrap items-center gap-4 border-t border-line py-[18px] first:border-t-0 first:pt-0">
@@ -147,19 +150,19 @@ export function QuizRow({ quiz, onRename, onResetScores, onDelete }: Props) {
 				<StartLink quizId={quiz.id} status={quizStatus(quiz)} />
 				<button
 					type="button"
-					className={ICON_BUTTON}
+					className={ICON_BUTTON_MUTED}
 					onClick={() => setRenaming(true)}
 				>
 					Rename
 				</button>
-				<button type="button" className={ICON_BUTTON} onClick={onResetScores}>
-					Reset scores
-				</button>
 				<button
 					type="button"
-					className={`${ICON_BUTTON} text-[#a33b31]`}
-					onClick={onDelete}
+					className={ICON_BUTTON_MUTED}
+					onClick={onResetScores}
 				>
+					Reset scores
+				</button>
+				<button type="button" className={ICON_BUTTON_DANGER} onClick={onDelete}>
 					Delete
 				</button>
 			</div>

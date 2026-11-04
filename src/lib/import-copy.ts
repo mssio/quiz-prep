@@ -1,9 +1,6 @@
+import { countLabel as count } from "#/lib/formats";
 import type { WorkspaceState } from "#/lib/schema";
 import { totalAttempts } from "#/lib/workspace";
-
-function count(amount: number, singular: string, plural: string): string {
-	return `${amount} ${amount === 1 ? singular : plural}`;
-}
 
 // Says what an import throws away and what takes its place.
 export function importWarning(

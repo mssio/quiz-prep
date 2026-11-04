@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { expect, test } from "vitest";
 import { MathText, renderMath } from "#/components/MathText";
-import { hasMath, splitMath } from "#/lib/math-text";
+import { hasMath, plainText, splitMath } from "#/lib/math-text";
 import { parseQuizFile } from "#/lib/parser";
 import mathFixture from "./fixtures/math.md?raw";
 
@@ -59,3 +59,9 @@ test("trust is off", () => {
 
 test("math fixture imports", () =>
 	expect(parseQuizFile(mathFixture, "math.md").ok).toBe(true));
+
+test("plainText un-escapes dollars and drops nothing else", () => {
+	expect(plainText("\\$5")).toBe("$5");
+	expect(plainText("costs \\$5 or $10")).toBe("costs $5 or $10");
+	expect(plainText("no money")).toBe("no money");
+});

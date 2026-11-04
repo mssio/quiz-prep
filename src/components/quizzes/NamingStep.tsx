@@ -6,6 +6,7 @@ import {
 	PanelBody,
 	PanelHeading,
 } from "#/components/ui";
+import { countLabel } from "#/lib/formats";
 import { canAdd, type PendingFile, validCount } from "#/lib/upload";
 import { isValidName } from "#/lib/workspace";
 
@@ -38,7 +39,7 @@ function ValidRow({
 				<label className="mb-2 block text-sm font-semibold text-[#425873]">
 					Quiz name{" "}
 					<span className="font-normal text-muted">
-						· {item.result.filename} · {count} questions
+						· {item.result.filename} · {countLabel(count, "question")}
 					</span>
 					<input
 						className="mt-2 min-h-12 w-full rounded-lg border border-[#b7c5d8] bg-white px-3.5 py-3 font-normal text-navy"

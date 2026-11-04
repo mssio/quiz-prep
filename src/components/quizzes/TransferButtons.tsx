@@ -21,7 +21,8 @@ function downloadText(text: string, filename: string) {
 	link.href = url;
 	link.download = filename;
 	link.click();
-	URL.revokeObjectURL(url);
+	// Revoking at once can cut the download off in some browsers.
+	setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 async function readText(file: File): Promise<string | null> {
@@ -32,7 +33,13 @@ async function readText(file: File): Promise<string | null> {
 	}
 }
 
-export function TransferButtons({ onImported }: { onImported(): void }) {
+export function TransferButtons({
+	busy,
+	onImported,
+}: {
+	busy: boolean;
+	onImported(): void;
+}) {
 	const { state, dispatch } = useWorkspace();
 	const confirm = useConfirm();
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -71,7 +78,11 @@ export function TransferButtons({ onImported }: { onImported(): void }) {
 				>
 					Export
 				</Button>
-				<Button variant="secondary" onClick={() => inputRef.current?.click()}>
+				<Button
+					variant="secondary"
+					disabled={busy}
+					onClick={() => inputRef.current?.click()}
+				>
 					Import
 				</Button>
 				<input

@@ -1,5 +1,5 @@
 import { MathText } from "#/components/MathText";
-import { hasMath } from "#/lib/math-text";
+import { hasMath, plainText } from "#/lib/math-text";
 import type { Choice } from "#/lib/schema";
 import { letterFor } from "./ChoiceRow";
 import { HINT_CLASS, TEXT_FIELD_CLASS } from "./fields";
@@ -61,7 +61,7 @@ export function Matching(props: QuestionProps<"matching">) {
 						<option value="">Choose a match</option>
 						{choices.map((choice, position) => (
 							<option key={choice.id} value={choice.id}>
-								{mathInRight ? letterFor(position) : choice.text}
+								{mathInRight ? letterFor(position) : plainText(choice.text)}
 							</option>
 						))}
 					</select>
