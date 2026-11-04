@@ -1,8 +1,13 @@
 import { expect, test } from "vitest";
-import { createAttempt } from "#/lib/attempt";
+import { createAttempt, updateAttempt } from "#/lib/attempt";
 import { parseQuizFile } from "#/lib/parser";
 import type { WorkspaceState } from "#/lib/schema";
-import { createQuiz, findQuiz, workspaceReducer } from "#/lib/workspace";
+import {
+	createQuiz,
+	findQuiz,
+	playRedirect,
+	workspaceReducer,
+} from "#/lib/workspace";
 import allFormats from "./fixtures/all-formats.md?raw";
 
 const NOW = "2026-11-04T10:00:00.000Z";
@@ -73,4 +78,13 @@ test("replaceState swaps the whole state", () => {
 		{ type: "replaceState", state: replacement },
 	);
 	expect(next).toBe(replacement);
+});
+
+test("playRedirect sends each attempt state to the right screen", () => {
+	const quiz = createQuiz(file, "Quiz", NOW);
+	const active = createAttempt(quiz.questions);
+	const submitted = updateAttempt(active, { type: "submit", at: NOW });
+	expect(playRedirect(null)).toBe("quiz");
+	expect(playRedirect(active)).toBeNull();
+	expect(playRedirect(submitted)).toBe("results");
 });

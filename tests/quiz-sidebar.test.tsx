@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { expect, test } from "vitest";
 import { QuizSidebar } from "#/components/QuizSidebar";
 import { createAttempt, updateAttempt } from "#/lib/attempt";
+import { finishCopy } from "#/routes/quizzes/$quizId/play";
 import { allFormatQuestions } from "./helpers";
 
 function attemptWithOneAnsweredOneFlagged() {
@@ -41,4 +42,10 @@ test("navigator marks answered, flagged and current", () => {
 test("save label follows storage status", () => {
 	expect(render(true)).toContain("Saved in this browser");
 	expect(render(false)).toContain("Not saved — keep this tab open");
+});
+
+test("finishCopy counts unanswered and flagged questions", () => {
+	expect(finishCopy(attemptWithOneAnsweredOneFlagged())).toBe(
+		"6 unanswered · 1 flagged for review. Once submitted, your answers are locked and your results are revealed.",
+	);
 });

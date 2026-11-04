@@ -77,3 +77,11 @@ export function workspaceReducer(
 			return action.state;
 	}
 }
+
+// Where the play screen should send the learner. null means stay on play.
+export function playRedirect(
+	attempt: Attempt | null,
+): "quiz" | "results" | null {
+	if (!attempt) return "quiz";
+	return attempt.status === "submitted" ? "results" : null;
+}

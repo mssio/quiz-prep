@@ -1,9 +1,4 @@
-import {
-	createFileRoute,
-	Link,
-	Navigate,
-	useNavigate,
-} from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { useConfirm } from "#/components/ConfirmDialog";
 import { QuizSidebar } from "#/components/QuizSidebar";
 import { QuestionView } from "#/components/questions/QuestionView";
@@ -20,14 +15,14 @@ import { formatNames } from "#/lib/formats";
 import { isAnswered } from "#/lib/grading";
 import type { Attempt } from "#/lib/schema";
 import { storageStatus } from "#/lib/storage";
-import { findQuiz } from "#/lib/workspace";
+import { findQuiz, playRedirect } from "#/lib/workspace";
 import { useWorkspace } from "#/state/workspace";
 
 export const Route = createFileRoute("/quizzes/$quizId/play")({
 	component: PlayScreen,
 });
 
-function finishCopy(attempt: Attempt): string {
+export function finishCopy(attempt: Attempt): string {
 	const unanswered = attempt.questions.filter(
 		(q) => !isAnswered(q, attempt.responses[q.id]),
 	).length;
@@ -40,14 +35,20 @@ function PlayScreen() {
 	const { state, dispatch, saveOk } = useWorkspace();
 	const confirm = useConfirm();
 	const focusMain = useFocusMain();
-	const navigate = useNavigate();
 	const quiz = findQuiz(state, quizId);
 
 	if (!quiz) return <Navigate to="/" />;
-	const attempt = quiz.attempt;
-	if (!attempt || attempt.status !== "active") {
-		return <Navigate to="/quizzes/$quizId" params={{ quizId }} />;
+	const { attempt } = quiz;
+	const redirect = playRedirect(attempt);
+	if (redirect === "results") {
+		return (
+			<Navigate to="/quizzes/$quizId/results" params={{ quizId }} replace />
+		);
 	}
+	if (redirect === "quiz" || !attempt) {
+		return <Navigate to="/quizzes/$quizId" params={{ quizId }} replace />;
+	}
+	const active: Attempt = attempt;
 	const question = attempt.questions.find(
 		(q) => q.id === attempt.order[attempt.currentIndex],
 	);
@@ -66,15 +67,14 @@ function PlayScreen() {
 	}
 
 	async function finish() {
-		if (!attempt) return;
 		const confirmed = await confirm({
 			title: "Finish this quiz?",
-			copy: finishCopy(attempt),
+			copy: finishCopy(active),
 			actionText: "Finish quiz",
 		});
 		if (!confirmed) return;
+		// The guard above redirects a submitted attempt to results.
 		send({ type: "submit", at: new Date().toISOString() });
-		navigate({ to: "/quizzes/$quizId/results", params: { quizId } });
 	}
 
 	return (
