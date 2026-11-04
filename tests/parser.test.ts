@@ -123,3 +123,23 @@ test("a file that cannot be read becomes a rejected result", async () => {
 	});
 	expect(r).toEqual({ ok: false, filename: "a.md", errors: ["a.md: nope"] });
 });
+
+test("an unclosed fence is reported against the last question", () => {
+	const text =
+		"## Q1\n- **Format:** true-false\n- **Question:** Is this fenced?\n```\ncode\n";
+	const r = parseQuizFile(text, "a.md");
+	expect(r).toEqual({
+		ok: false,
+		filename: "a.md",
+		errors: expect.arrayContaining(["a.md: Q1: Close the fenced code block."]),
+	});
+});
+
+test("a file without question headings says no questions were found", () => {
+	const r = parseQuizFile("# Just a title\n\nSome notes.\n", "notes.md");
+	expect(r).toEqual({
+		ok: false,
+		filename: "notes.md",
+		errors: ["notes.md: No questions found. Use headings such as ## Q1."],
+	});
+});

@@ -48,7 +48,7 @@ export function WorkspaceProvider({
 		workspaceReducer,
 		loaded.state ?? EMPTY_STATE,
 	);
-	const [saveOk, setSaveOk] = useState(true);
+	const [saveOk, setSaveOk] = useState(!loaded.message);
 	const [warning, setWarning] = useState(loaded.message);
 	// The state object that is already in storage, so we never write it back.
 	const lastSynced = useRef(state);

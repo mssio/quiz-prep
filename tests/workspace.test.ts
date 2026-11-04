@@ -394,3 +394,23 @@ test("the source line follows a rename", () => {
 		"Question bank",
 	);
 });
+
+test("question ids use the number from the file, not the position", () => {
+	const gappy = `# Gaps
+## Q2
+- **Format:** true-false
+- **Question:** Second?
+- **Answer:** True
+## Q5
+- **Format:** true-false
+- **Question:** Fifth?
+- **Answer:** False
+`;
+	const parsedGappy = parseQuizFile(gappy, "gaps.md");
+	if (!parsedGappy.ok) throw new Error(parsedGappy.errors.join("\n"));
+	const quiz = createQuiz(parsedGappy, "Gaps", NOW);
+	expect(quiz.questions.map((q) => q.id)).toEqual([
+		`${quiz.id}:2`,
+		`${quiz.id}:5`,
+	]);
+});

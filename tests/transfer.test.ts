@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import { createAttempt } from "#/lib/attempt";
 import { type ParsedFile, parseQuizFile } from "#/lib/parser";
-import type { WorkspaceState } from "#/lib/schema";
+import { type WorkspaceState, workspaceStateSchema } from "#/lib/schema";
 import {
 	buildExport,
 	type ExportFile,
@@ -106,4 +106,49 @@ test.each([
 			"This file isn't a Quiz Prep export, or it's damaged. Nothing was changed.",
 		);
 	}
+});
+
+test("imported quizzes pass the saved-state schema", () => {
+	const quizzes = quizzesFromExport(
+		okQuizzes(parseExport(serializeExport(file))),
+		NOW,
+	);
+	expect(workspaceStateSchema.safeParse({ quizzes }).success).toBe(true);
+});
+
+test("smuggled keys in an import are stripped", () => {
+	const smuggled = structuredClone(file) as unknown as {
+		quizzes: Record<string, unknown>[];
+	};
+	smuggled.quizzes[0].history = [{ id: "fake" }];
+	smuggled.quizzes[0].attempt = { status: "active" };
+	const question = smuggled.quizzes[0].questions as Record<string, unknown>[];
+	question[0].id = "stray-id";
+	question[0].quizId = "stray-quiz";
+
+	const quizzes = quizzesFromExport(
+		okQuizzes(parseExport(JSON.stringify(smuggled))),
+		NOW,
+	);
+	expect(quizzes[0].history).toEqual([]);
+	expect(quizzes[0].attempt).toBeNull();
+	expect(quizzes[0].questions[0].id).toBe(`${quizzes[0].id}:1`);
+	expect(quizzes[0].questions[0].quizId).toBe(quizzes[0].id);
+	expect(workspaceStateSchema.safeParse({ quizzes }).success).toBe(true);
+});
+
+test("an export with an unsafe question number round-trips", () => {
+	const text = `## Q9007199254740993\n- **Format:** true-false\n- **Question:** Big?\n- **Answer:** True\n`;
+	const parsedBig = parseQuizFile(text, "big.md");
+	if (!parsedBig.ok) throw new Error(parsedBig.errors.join("\n"));
+	const big = createQuiz(parsedBig, "Big", NOW);
+	expect(workspaceStateSchema.safeParse({ quizzes: [big] }).success).toBe(true);
+
+	const exported = buildExport({ quizzes: [big] }, NOW);
+	const back = quizzesFromExport(
+		okQuizzes(parseExport(serializeExport(exported))),
+		NOW,
+	);
+	expect(back[0].questions[0].number).toBe(big.questions[0].number);
+	expect(workspaceStateSchema.safeParse({ quizzes: back }).success).toBe(true);
 });

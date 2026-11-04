@@ -27,10 +27,10 @@ export function createQuiz(
 		filename: parsed.filename,
 		title: parsed.title,
 		course: parsed.course,
-		questions: parsed.questions.map((content, i) => ({
+		questions: parsed.questions.map((content) => ({
 			...content,
 			quizId: id,
-			id: `${id}:${i + 1}`,
+			id: `${id}:${content.number}`,
 		})),
 		history: [],
 		attempt: null,

@@ -70,7 +70,7 @@ test("provider starts empty when nothing is saved", () => {
 
 test("provider starts empty and warns when the save is invalid", () => {
 	const html = renderProbe(memory("not json"));
-	expect(html).toContain("0 quizzes, saveOk=true");
+	expect(html).toContain("0 quizzes, saveOk=false");
 	expect(html).toContain("Saved progress could not be restored");
 });
 

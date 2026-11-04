@@ -17,7 +17,8 @@ const choiceListSchema = z
 	});
 
 const common = {
-	number: z.number().int(),
+	// Not z.number().int(): zod rejects integers beyond 2^53 that the parser accepts.
+	number: z.number().refine(Number.isInteger, "number must be a whole number"),
 	prompt: z.string().min(1),
 	explanation: z.string(),
 };
