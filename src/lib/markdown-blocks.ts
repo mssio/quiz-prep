@@ -13,9 +13,9 @@ export type ScanResult = {
 export type ListEntry = { id: string; text: string };
 export type ListKind = "letters" | "numbers";
 
-type Fence = { char: string; length: number };
+export type Fence = { char: string; length: number };
 
-const fencePattern = /^(`{3,}|~{3,})/;
+export const fencePattern = /^(`{3,}|~{3,})/;
 const headingPattern = /^##\s+Q(\d+)\s*$/;
 const fieldPattern = /^\s*-\s+\*\*([\w -]+):\*\*\s*(.*)$/;
 const letterItemPattern = /^\s*-\s+([A-Z])\.\s+(.+)$/;
@@ -25,7 +25,7 @@ export function normalizeText(text: string): string {
 	return text.replace(/^﻿/, "").replace(/\r\n?/g, "\n");
 }
 
-function nextFence(fence: Fence | null, marker: string): Fence | null {
+export function nextFence(fence: Fence | null, marker: string): Fence | null {
 	if (fence === null) return { char: marker[0], length: marker.length };
 	const closes = marker[0] === fence.char && marker.length >= fence.length;
 	return closes ? null : fence;
