@@ -26,31 +26,46 @@ export function choiceIds(q: Question): (string | boolean)[] {
 	}
 }
 
+type AttemptOptions = { isRetry?: boolean; keepOrder?: boolean };
+
+function pickQuestions(
+	questions: Question[],
+	count: number,
+	rng: Rng,
+	keepOrder: boolean,
+): Question[] {
+	if (count === questions.length) return questions;
+	const chosen = shuffled(questions, rng).slice(0, count);
+	if (!keepOrder) return chosen;
+	return questions.filter((q) => chosen.includes(q));
+}
+
+// Ordering items always shuffle: a file may list them in the correct order.
+function displayOrder(q: Question, rng: Rng, keepOrder: boolean) {
+	if (keepOrder && q.format !== "ordering") return choiceIds(q);
+	return shuffled(choiceIds(q), rng);
+}
+
 export function createAttempt(
 	questions: Question[],
 	rng: Rng = Math.random,
 	count: number = questions.length,
-	isRetry = false,
+	{ isRetry = false, keepOrder = false }: AttemptOptions = {},
 ): Attempt {
 	if (!Number.isInteger(count) || count < 1 || count > questions.length) {
 		throw new RangeError("Question count must be between 1 and the pool size.");
 	}
-	const picked =
-		count === questions.length
-			? questions
-			: shuffled(questions, rng).slice(0, count);
+	const picked = pickQuestions(questions, count, rng, keepOrder);
 	const snapshot = structuredClone(picked);
 	const displayOrders: Attempt["displayOrders"] = {};
 	for (const q of snapshot) {
-		displayOrders[q.id] = shuffled(choiceIds(q), rng);
+		displayOrders[q.id] = displayOrder(q, rng, keepOrder);
 	}
+	const questionIds = snapshot.map((q) => q.id);
 	return {
 		id: newId(),
 		questions: snapshot,
-		order: shuffled(
-			snapshot.map((q) => q.id),
-			rng,
-		),
+		order: keepOrder ? questionIds : shuffled(questionIds, rng),
 		displayOrders,
 		responses: {},
 		flags: {},
@@ -58,6 +73,7 @@ export function createAttempt(
 		currentIndex: 0,
 		status: "active",
 		isRetry,
+		keepOrder,
 		submittedAt: null,
 	};
 }
@@ -113,5 +129,8 @@ export function retryMissed(
 		return grade.status === "incorrect";
 	});
 	if (missed.length === 0) return null;
-	return createAttempt(missed, rng, missed.length, true);
+	return createAttempt(missed, rng, missed.length, {
+		isRetry: true,
+		keepOrder: attempt.keepOrder,
+	});
 }

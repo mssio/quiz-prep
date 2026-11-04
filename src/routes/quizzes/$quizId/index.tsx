@@ -109,7 +109,7 @@ function QuizPage() {
 	const status = quizStatus(quiz);
 	const course = quiz.course || quiz.filename;
 
-	async function start(count: number) {
+	async function start(count: number, keepOrder: boolean) {
 		if (!quiz) return;
 		if (status === "active" || status === "pending") {
 			const ok = await confirm({
@@ -119,7 +119,9 @@ function QuizPage() {
 			});
 			if (!ok) return;
 		}
-		const attempt = createAttempt(quiz.questions, Math.random, count);
+		const attempt = createAttempt(quiz.questions, Math.random, count, {
+			keepOrder,
+		});
 		// Dispatch first, so the play route's guard finds the new attempt.
 		dispatch({ type: "startAttempt", quizId, attempt });
 		navigate({ to: "/quizzes/$quizId/play", params: { quizId } });

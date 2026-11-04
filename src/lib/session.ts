@@ -9,6 +9,10 @@ export function parseCount(value: string, max: number): number | null {
 	return count;
 }
 
+export function orderLabel(keepOrder: boolean): string {
+	return keepOrder ? "Original" : "Shuffled";
+}
+
 const REPLACE_COPY =
 	"This replaces the saved attempt and its answers. Your questions and score history will stay.";
 

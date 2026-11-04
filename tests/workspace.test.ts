@@ -272,7 +272,9 @@ test("changing an assessment after reset scores adds nothing", () => {
 
 test("retry entries are tagged", () => {
 	const quiz = quizWith([tf(1)]);
-	const retry = createAttempt(quiz.questions, Math.random, 1, true);
+	const retry = createAttempt(quiz.questions, Math.random, 1, {
+		isRetry: true,
+	});
 	const { state, quizId } = started(quiz, retry);
 	const [entry] = submitAllTrue(state, quizId).quizzes[0].history;
 	expect(entry.isRetry).toBe(true);

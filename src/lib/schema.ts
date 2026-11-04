@@ -27,6 +27,8 @@ export const attemptSchema = z
 		currentIndex: z.number().int(),
 		status: z.enum(["active", "submitted"]),
 		isRetry: z.boolean(),
+		// Attempts saved before this option have no value, and were shuffled.
+		keepOrder: z.boolean().default(false),
 		submittedAt: z.string().nullable(),
 	})
 	.superRefine((attempt, ctx) => {
