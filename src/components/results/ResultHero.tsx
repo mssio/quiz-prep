@@ -1,7 +1,6 @@
 import { Panel } from "#/components/ui";
 import type { Summary } from "#/lib/grading";
-
-const percentFormat = new Intl.NumberFormat("en", { maximumFractionDigits: 1 });
+import { formatPercent } from "#/lib/history";
 
 function eyebrow(s: Summary): string {
 	if (s.pending) return "PROVISIONAL RESULT";
@@ -27,11 +26,6 @@ function detail(s: Summary): string {
 	return "You can still review your responses below.";
 }
 
-function scoreText(s: Summary): string {
-	if (s.percentage === null) return "—";
-	return `${percentFormat.format(s.percentage)}%`;
-}
-
 function Stat({ value, label }: { value: number; label: string }) {
 	return (
 		<div>
@@ -46,7 +40,7 @@ export function ResultHero({ summary }: { summary: Summary }) {
 		<Panel>
 			<div className="flex items-start gap-[18px] p-[23px] phone:items-center phone:gap-7 phone:p-8">
 				<div className="flex h-24 min-w-24 items-center justify-center rounded-full border-[7px] border-[#dce7ff] text-[25px] font-[750] tracking-[-1px] text-blue phone:h-[130px] phone:min-w-[130px] phone:border-[9px] phone:text-[34px]">
-					{scoreText(summary)}
+					{formatPercent(summary.percentage)}
 				</div>
 				<div>
 					<p className="mb-3 text-xs font-[750] tracking-[1.8px] text-blue uppercase">
@@ -55,7 +49,9 @@ export function ResultHero({ summary }: { summary: Summary }) {
 					<h2 className="text-[19px] font-bold leading-[1.4] tracking-[-0.35px]">
 						{headline(summary)}
 					</h2>
-					<p className="text-sm leading-[1.6] text-muted">{detail(summary)}</p>
+					<p className="my-3.5 text-sm leading-[1.6] text-muted">
+						{detail(summary)}
+					</p>
 					<div className="mt-5 flex flex-wrap gap-3.5 phone:gap-[22px]">
 						<Stat value={summary.correct} label="Correct" />
 						<Stat value={summary.incorrect} label="Incorrect" />

@@ -1,4 +1,5 @@
-import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { BackLink } from "#/components/BackLink";
 import { useConfirm } from "#/components/ConfirmDialog";
 import { QuizSidebar } from "#/components/QuizSidebar";
 import { QuestionView } from "#/components/questions/QuestionView";
@@ -12,8 +13,8 @@ import {
 import { useFocusMain } from "#/components/useFocusMain";
 import type { AttemptAction } from "#/lib/attempt";
 import { formatNames } from "#/lib/formats";
-import { isAnswered } from "#/lib/grading";
 import type { Attempt } from "#/lib/schema";
+import { finishCopy } from "#/lib/session";
 import { storageStatus } from "#/lib/storage";
 import { findQuiz, playRedirect, questionSource } from "#/lib/workspace";
 import { useWorkspace } from "#/state/workspace";
@@ -22,14 +23,6 @@ export const Route = createFileRoute("/quizzes/$quizId/play")({
 	component: PlayScreen,
 });
 
-export function finishCopy(attempt: Attempt): string {
-	const unanswered = attempt.questions.filter(
-		(q) => !isAnswered(q, attempt.responses[q.id]),
-	).length;
-	const flagged = Object.values(attempt.flags).filter(Boolean).length;
-	return `${unanswered} unanswered · ${flagged} flagged for review. Once submitted, your answers are locked and your results are revealed.`;
-}
-
 function PlayScreen() {
 	const { quizId } = Route.useParams();
 	const { state, dispatch, saveOk } = useWorkspace();
@@ -37,7 +30,7 @@ function PlayScreen() {
 	const focusMain = useFocusMain();
 	const quiz = findQuiz(state, quizId);
 
-	if (!quiz) return <Navigate to="/" />;
+	if (!quiz) return <Navigate to="/" replace />;
 	const { attempt } = quiz;
 	const redirect = playRedirect(attempt);
 	if (redirect === "results") {
@@ -52,7 +45,7 @@ function PlayScreen() {
 	const question = attempt.questions.find(
 		(q) => q.id === attempt.order[attempt.currentIndex],
 	);
-	if (!question) return <Navigate to="/" />;
+	if (!question) return <Navigate to="/" replace />;
 
 	const isLast = attempt.currentIndex === attempt.order.length - 1;
 	const flagged = !!attempt.flags[question.id];
@@ -79,13 +72,7 @@ function PlayScreen() {
 
 	return (
 		<>
-			<Link
-				to="/quizzes/$quizId"
-				params={{ quizId }}
-				className="mb-[17px] inline-block p-2 text-sm"
-			>
-				Question banks
-			</Link>
+			<BackLink quizId={quizId} />
 			<PageHeading
 				eyebrow="STUDY SESSION"
 				title={`Question ${attempt.currentIndex + 1} of ${attempt.questions.length}`}
@@ -95,7 +82,7 @@ function PlayScreen() {
 				main={
 					<Panel>
 						<PanelBody>
-							<div className="flex items-center justify-between gap-3">
+							<div className="flex items-start justify-between gap-3 phone:items-center">
 								<span className="rounded-md bg-[#edf2fa] px-[9px] py-1.5 text-xs font-[650] text-[#415876]">
 									{formatNames[question.format]}
 								</span>
@@ -114,7 +101,7 @@ function PlayScreen() {
 									{flagged ? "⚑ Flagged for review" : "⚐ Flag for review"}
 								</Button>
 							</div>
-							<p className="mt-[15px] mb-5 text-[13px] break-words text-muted">
+							<p className="mt-[15px] mb-5 text-[13px] [overflow-wrap:anywhere] text-muted">
 								{questionSource(question, state.quizzes)} · Q{question.number}
 							</p>
 							<QuestionView
@@ -127,7 +114,7 @@ function PlayScreen() {
 								}
 							/>
 						</PanelBody>
-						<div className="flex justify-between gap-3 border-t border-line bg-[#fbfcfe] px-7 py-[21px]">
+						<div className="flex justify-between gap-3 border-t border-line bg-[#fbfcfe] p-[18px] phone:px-7 phone:py-[21px]">
 							<Button
 								variant="secondary"
 								disabled={attempt.currentIndex === 0}

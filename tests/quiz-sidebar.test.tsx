@@ -2,7 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { expect, test } from "vitest";
 import { QuizSidebar } from "#/components/QuizSidebar";
 import { createAttempt, updateAttempt } from "#/lib/attempt";
-import { finishCopy } from "#/routes/quizzes/$quizId/play";
+import { finishCopy } from "#/lib/session";
 import { allFormatQuestions } from "./helpers";
 
 function attemptWithOneAnsweredOneFlagged() {

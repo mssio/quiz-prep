@@ -19,6 +19,7 @@ import {
 	WorkspaceGrid,
 } from "#/components/ui";
 import { createAttempt } from "#/lib/attempt";
+import { countLabel } from "#/lib/formats";
 import { quizStats } from "#/lib/history";
 import type { Quiz } from "#/lib/schema";
 import { replaceCopy } from "#/lib/session";
@@ -104,7 +105,7 @@ function QuizPage() {
 	const navigate = useNavigate();
 	const quiz = findQuiz(state, quizId);
 
-	if (!quiz) return <Navigate to="/" />;
+	if (!quiz) return <Navigate to="/" replace />;
 	const status = quizStatus(quiz);
 	const course = quiz.course || quiz.filename;
 
@@ -132,7 +133,7 @@ function QuizPage() {
 			<PageHeading
 				eyebrow="Quiz"
 				title={quiz.name}
-				lede={`${quiz.questions.length} questions · ${course}`}
+				lede={`${countLabel(quiz.questions.length, "question")} · ${course}`}
 			/>
 			<UnfinishedNotice quizId={quizId} status={status} />
 			<WorkspaceGrid

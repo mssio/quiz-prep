@@ -1,7 +1,8 @@
 import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
+import { BackLink } from "#/components/BackLink";
 import { ResultHero } from "#/components/results/ResultHero";
 import { ReviewList } from "#/components/results/ReviewList";
-import { Button, Notice } from "#/components/ui";
+import { Button, Notice, PageHeading } from "#/components/ui";
 import { retryMissed } from "#/lib/attempt";
 import { type Summary, summarize } from "#/lib/grading";
 import { findQuiz, questionSource, resultsRedirect } from "#/lib/workspace";
@@ -24,7 +25,7 @@ function Results() {
 	const { state, dispatch } = useWorkspace();
 	const quiz = findQuiz(state, quizId);
 
-	if (!quiz) return <Navigate to="/" />;
+	if (!quiz) return <Navigate to="/" replace />;
 	const { attempt } = quiz;
 	const redirect = resultsRedirect(attempt);
 	if (redirect === "play") {
@@ -47,6 +48,12 @@ function Results() {
 
 	return (
 		<>
+			<BackLink quizId={quizId} />
+			<PageHeading
+				eyebrow="REFLECT & REPEAT"
+				title="See what stuck."
+				lede="Review your answers, close the gaps, and keep moving forward."
+			/>
 			<ResultHero summary={summary} />
 			<div className="mt-[22px]">
 				<Notice>
@@ -72,7 +79,7 @@ function Results() {
 			<h2 className="text-[19px] font-bold leading-[1.4] tracking-[-0.35px]">
 				Your answer review
 			</h2>
-			<p className="text-sm leading-[1.6] text-muted">
+			<p className="my-3.5 text-sm leading-[1.6] text-muted">
 				Open any question to compare your answer with the answer key.
 			</p>
 			<ReviewList

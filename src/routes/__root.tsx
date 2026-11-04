@@ -1,5 +1,6 @@
 import {
 	createRootRoute,
+	Link,
 	Outlet,
 	useRouterState,
 } from "@tanstack/react-router";
@@ -18,7 +19,10 @@ export const Route = createRootRoute({
 function TopBar() {
 	return (
 		<header className="flex min-h-[75px] items-center justify-between gap-5 bg-navy p-5 text-white phone:min-h-[88px] phone:px-[25px] tablet:px-[max(5vw,24px)]">
-			<div className="flex items-center gap-[13px] text-lg tracking-[-0.3px] tablet:text-xl">
+			<Link
+				to="/"
+				className="flex items-center gap-[13px] text-lg tracking-[-0.3px] text-white no-underline tablet:text-xl"
+			>
 				<span className="relative pr-2 text-[31px] leading-none font-extrabold">
 					Q
 					<span className="absolute -top-[7px] right-0 text-[22px] text-[#e6bd55]">
@@ -28,7 +32,7 @@ function TopBar() {
 				<span>
 					Quiz <strong className="font-semibold">Prep</strong>
 				</span>
-			</div>
+			</Link>
 			<div className="flex items-center gap-[9px] text-sm text-[#d8e2ef]">
 				<span aria-hidden="true" className="text-[23px] text-[#e6bd55]">
 					◈
