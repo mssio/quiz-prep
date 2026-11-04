@@ -15,6 +15,7 @@ This project does two things:
    - all quizzes are kept in local storage
    - a quiz list page shows each quiz's score history, average and best score
    - there are buttons to delete a quiz, reset one quiz's scores, and reset everything
+   - quizzes can be exported to one file and imported by someone else, which replaces their data
 
 Today the site merges every uploaded file into one pool and forgets your score as soon as you start again. The new version lets the owner keep a set of chapter quizzes and see whether they're improving.
 
@@ -143,9 +144,9 @@ Build it in two phases, so that "nothing broke" can be checked before new featur
   - **Reset scores**, which clears **this quiz's** history only.
   - **Delete**, which removes this quiz, its history and its unfinished session.
 - Clicking the quiz name opens `/quizzes/$quizId`. "Start" also goes there, and the session is started from that quiz's page. "Resume" goes straight to `/quizzes/$quizId/play`.
-- The order is the order the quizzes were added, oldest first. *(My call.)*
+- Quizzes are **listed by name**, A–Z (decided by the owner). The sort ignores case and treats numbers as numbers, so "Ch 2" comes before "Ch 10" (`localeCompare` with `numeric: true`, `sensitivity: 'base'`). A renamed quiz moves to its new place.
 - When there are no quizzes, there's an empty state that points to the upload box.
-- **The sidebar** has the upload box, a few totals (quizzes, total attempts, whether progress is saved), and **Reset everything**, which removes every quiz, all history and every unfinished session.
+- **The sidebar** has the upload box, a few totals (quizzes, total attempts, whether progress is saved), **Export** and **Import** (see "Export and import"), and **Reset everything**, which removes every quiz, all history and every unfinished session.
 - Delete, Reset scores and Reset everything each ask for confirmation in the same `<dialog>` style the old site uses, and say that it can't be undone.
 - Stats show "—" when a quiz has no counted attempts.
 
@@ -177,6 +178,22 @@ Build it in two phases, so that "nothing broke" can be checked before new featur
 - A history entry's date is **when the attempt was submitted**, not when it was finalised. *(My call.)*
 - **Reset scores** keeps the quiz's attempt. *(My call: an unfinished session is progress, not a score.)* **Delete** and **Reset everything** remove it.
 - The quiz list has **no global "You have a saved session" notice**. It was in the mockup only because it was copied from the old page. Each row's Resume / Finish assessing button covers this, even when several quizzes are unfinished. *(My call.)* The old `storageStatus().resume` wording is dropped. The rest of `storageStatus` stays.
+
+### Export and import (decided with the owner)
+
+The app is for study material and test preparation, and people share quiz sets with each other this way.
+
+- **Export** downloads **one JSON text file** containing every quiz's name, filename, `#` title, course, and questions with their answer keys. It contains **only questions and answer keys**: no score history and no unfinished sessions. Export is disabled when there are no quizzes. *(My call: JSON rather than a zip, which would need another package and add nothing for small text data.)*
+- The file has a small header, for example `{format: 'quiz-workspace-export', version: 1, exportedAt, quizzes: [...]}`, and has its own `zod` schema.
+- **Import** is a separate button from the upload box:
+  - **Upload** adds Markdown files as new quizzes through the naming step.
+  - **Import** takes an export file and **replaces the entire database**: all quizzes, history and unfinished sessions. Quiz names come from the file, so there's no naming step.
+- The file is fully validated before anything changes. A damaged file, or one that isn't an export file, is rejected with a clear message and existing data stays untouched.
+- A valid file then needs confirmation, in the same `<dialog>` style, stating what will be lost and what replaces it, for example "This replaces your 4 quizzes and 10 recorded attempts with 6 quizzes from this file. This can't be undone."
+- Imported quizzes get fresh quiz ids and question ids and start with empty history. *(My call.)*
+- Importing a file is treated as loading data, never as code. Text stays plain text, as with Markdown files.
+
+Merging an import into existing quizzes is out of scope, and could come in a later phase.
 
 ## Data shape (decided with the owner)
 
@@ -322,6 +339,10 @@ For state, a single React context with a reducer is enough. No state library.
   - reset everything empties the state
   - rename rejects a blank name
   - adding the same file twice creates two quizzes with distinct question ids
+  - quizzes sort by name with numbers in numeric order
+  - an export contains questions and answer keys but no history or attempts
+  - exporting then importing restores the same quizzes, names and questions
+  - importing replaces all existing data, and an invalid file changes nothing
 - **Schema tests.** The `zod` schema accepts the state produced by the app and rejects the kinds of invalid state the old `storage.js` rejected.
 - **Build and lint.** `bun run build` succeeds and `bun run check` (Biome) is clean.
 - **Manual pass in the browser:**
@@ -331,6 +352,8 @@ For state, a single React context with a reducer is enough. No state library.
   - finish, self-assess, check that the history entry appears, retry missed, and check that the retry is tagged and not counted
   - leave one quiz unfinished, start another, then resume the first
   - rename, reset scores, delete and reset everything, each through its confirmation
+  - export, reset everything, import the file, and confirm the quizzes return with their names and no scores
+  - try importing a non-export file and confirm nothing changes
   - reload on `/quizzes/<id>/play`
   - use the browser's back button between routes
   - check the layout at about 400px wide
