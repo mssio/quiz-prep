@@ -3,7 +3,7 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 type Variant = "primary" | "secondary" | "danger" | "text";
 
 const BUTTON_BASE =
-	"inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-[18px] py-3 text-sm leading-[1.3] font-semibold no-underline";
+	"inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-[18px] py-3 text-sm leading-[1.3] font-[650] no-underline";
 
 const BUTTON_VARIANTS: Record<Variant, string> = {
 	primary: "bg-blue text-white enabled:hover:bg-[#1645b0]",
@@ -51,7 +51,9 @@ export function PanelHeading({
 }) {
 	return (
 		<div className="flex items-center justify-between gap-3 border-b border-line px-5 py-5 phone:px-7 phone:py-[23px]">
-			<h2 className="text-[19px] leading-[1.4] tracking-[-0.35px]">{title}</h2>
+			<h2 className="text-[19px] font-bold leading-[1.4] tracking-[-0.35px]">
+				{title}
+			</h2>
 			{children}
 		</div>
 	);
@@ -76,10 +78,10 @@ export function PageHeading({
 }) {
 	return (
 		<div className="mb-[30px]">
-			<p className="mb-3 text-xs font-bold tracking-[1.8px] text-blue uppercase">
+			<p className="mb-3 text-xs font-[750] tracking-[1.8px] text-blue uppercase">
 				{eyebrow}
 			</p>
-			<h1 className="mb-3 text-[clamp(29px,3.5vw,40px)] leading-[1.15] font-bold tracking-[-1px] tablet:tracking-[-1.5px]">
+			<h1 className="mb-3 text-[clamp(29px,3.5vw,40px)] leading-[1.15] font-[750] tracking-[-1px] tablet:tracking-[-1.5px]">
 				{title}
 			</h1>
 			<p className="text-base leading-[1.7] text-muted">{lede}</p>
@@ -112,7 +114,7 @@ export function Notice({ children }: { children: ReactNode }) {
 
 export function SectionLabel({ children }: { children: ReactNode }) {
 	return (
-		<span className="text-xs font-bold tracking-[1.4px] text-muted uppercase">
+		<span className="text-xs font-[750] tracking-[1.4px] text-muted uppercase">
 			{children}
 		</span>
 	);
@@ -120,7 +122,7 @@ export function SectionLabel({ children }: { children: ReactNode }) {
 
 export function CountPill({ children }: { children: ReactNode }) {
 	return (
-		<span className="rounded-md bg-[#edf2fa] px-[9px] py-1.5 text-xs font-semibold text-[#415876]">
+		<span className="rounded-md bg-[#edf2fa] px-[9px] py-1.5 text-xs font-[650] text-[#415876]">
 			{children}
 		</span>
 	);
