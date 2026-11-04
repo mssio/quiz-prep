@@ -1,10 +1,12 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { type KeyboardEvent, useRef, useState } from "react";
 import { QuizStatsBlock } from "#/components/quizzes/QuizStatsBlock";
+import { createAttempt } from "#/lib/attempt";
 import { countLabel } from "#/lib/formats";
 import { quizStats } from "#/lib/history";
 import type { Quiz } from "#/lib/schema";
 import { isValidName, type QuizStatus, quizStatus } from "#/lib/workspace";
+import { useWorkspace } from "#/state/workspace";
 
 type Props = {
 	quiz: Quiz;
@@ -20,8 +22,17 @@ const ICON_BUTTON =
 const ICON_BUTTON_MUTED = `${ICON_BUTTON} text-muted`;
 const ICON_BUTTON_DANGER = `${ICON_BUTTON} text-[#a33b31]`;
 
-function StartLink({ quizId, status }: { quizId: string; status: QuizStatus }) {
+function StartAction({ quiz, status }: { quiz: Quiz; status: QuizStatus }) {
+	const { dispatch } = useWorkspace();
+	const navigate = useNavigate();
+	const quizId = quiz.id;
 	const params = { quizId };
+
+	function start() {
+		const attempt = createAttempt(quiz.questions);
+		dispatch({ type: "startAttempt", quizId, attempt });
+		navigate({ to: "/quizzes/$quizId/play", params });
+	}
 	if (status === "active") {
 		return (
 			<Link to="/quizzes/$quizId/play" params={params} className={LINK_BUTTON}>
@@ -41,9 +52,9 @@ function StartLink({ quizId, status }: { quizId: string; status: QuizStatus }) {
 		);
 	}
 	return (
-		<Link to="/quizzes/$quizId" params={params} className={LINK_BUTTON}>
+		<button type="button" onClick={start} className={LINK_BUTTON}>
 			Start
-		</Link>
+		</button>
 	);
 }
 
@@ -147,7 +158,7 @@ export function QuizRow({ quiz, onRename, onResetScores, onDelete }: Props) {
 			</div>
 			<QuizStatsBlock stats={quizStats(quiz.history)} />
 			<div className="flex flex-wrap items-center gap-1.5">
-				<StartLink quizId={quiz.id} status={quizStatus(quiz)} />
+				<StartAction quiz={quiz} status={quizStatus(quiz)} />
 				<button
 					type="button"
 					className={ICON_BUTTON_MUTED}
