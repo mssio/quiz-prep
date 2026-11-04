@@ -66,10 +66,13 @@ function QuizList() {
 		if (files.length === 0 || readingRef.current) return;
 		readingRef.current = true;
 		setBusy(true);
-		const results = await Promise.all(files.map(readUpload));
-		setPending((current) => appendPending(current, pendingFiles(results)));
-		readingRef.current = false;
-		setBusy(false);
+		try {
+			const results = await Promise.all(files.map(readUpload));
+			setPending((current) => appendPending(current, pendingFiles(results)));
+		} finally {
+			readingRef.current = false;
+			setBusy(false);
+		}
 	}
 
 	function addPending() {
