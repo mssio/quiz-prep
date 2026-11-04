@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useRef, useState } from "react";
 import { useConfirm } from "#/components/ConfirmDialog";
 import { LibrarySidebar } from "#/components/quizzes/LibrarySidebar";
 import { NamingStep } from "#/components/quizzes/NamingStep";
@@ -15,6 +15,7 @@ import {
 import { readUpload } from "#/lib/parser";
 import type { Quiz } from "#/lib/schema";
 import {
+	appendPending,
 	type PendingFile,
 	pendingFiles,
 	quizzesFromPending,
@@ -58,12 +59,16 @@ function QuizList() {
 	const confirm = useConfirm();
 	const [pending, setPending] = useState<PendingFile[] | null>(null);
 	const [busy, setBusy] = useState(false);
+	// A ref, so a drop during reading is ignored even before busy re-renders.
+	const readingRef = useRef(false);
 
 	async function handleFiles(files: File[]) {
-		if (files.length === 0) return;
+		if (files.length === 0 || readingRef.current) return;
+		readingRef.current = true;
 		setBusy(true);
 		const results = await Promise.all(files.map(readUpload));
-		setPending(pendingFiles(results));
+		setPending((current) => appendPending(current, pendingFiles(results)));
+		readingRef.current = false;
 		setBusy(false);
 	}
 

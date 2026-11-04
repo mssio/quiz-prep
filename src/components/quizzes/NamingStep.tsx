@@ -70,8 +70,8 @@ function SkippedRow({ item }: { item: PendingFile }) {
 					{item.result.filename}
 				</strong>
 				<div className="mt-2 rounded-lg border border-[#e8ca91] bg-[#fff5df] px-4 py-3.5 text-sm leading-[1.6] text-[#73470f]">
-					{item.result.errors.map((message) => (
-						<p key={message}>{message}</p>
+					{item.result.errors.map((message, index) => (
+						<p key={message + String(index)}>{message}</p>
 					))}
 					<p>This file will be skipped.</p>
 				</div>

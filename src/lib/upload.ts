@@ -32,3 +32,11 @@ export function quizzesFromPending(
 	}
 	return quizzes;
 }
+
+// Files added while the naming step is open join it; earlier edits stay.
+export function appendPending(
+	current: PendingFile[] | null,
+	added: PendingFile[],
+): PendingFile[] {
+	return [...(current ?? []), ...added];
+}

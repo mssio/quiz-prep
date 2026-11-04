@@ -1,6 +1,7 @@
 import { expect, test } from "vitest";
 import type { ParsedFile, RejectedFile } from "#/lib/parser";
 import {
+	appendPending,
 	canAdd,
 	type PendingFile,
 	pendingFiles,
@@ -51,4 +52,12 @@ test("each file becomes one quiz, under the edited name", () => {
 	expect(quizzes[0].id).not.toBe(quizzes[1].id);
 	expect(quizzes[0].addedAt).toBe(NOW);
 	expect(quizzes[0].questions).toHaveLength(1);
+});
+
+test("appended files join the list and edited names survive", () => {
+	const edited: PendingFile[] = [{ result: okFile("A"), name: "My name" }];
+	const added = pendingFiles([okFile("B", "b.md")]);
+	const merged = appendPending(edited, added);
+	expect(merged.map((item) => item.name)).toEqual(["My name", "B"]);
+	expect(appendPending(null, added)).toEqual(added);
 });
