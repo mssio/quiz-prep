@@ -391,6 +391,10 @@ For state, a single React context with a reducer is enough. No state library.
   - use the browser's back button between routes
   - check the layout at about 400px wide
 
+## Related document
+
+`docs/question-conversion-instructions.md` tells an AI chat how to turn text or HTML questions into the Markdown format, with an error and warning report. Its examples were checked against the old parser. If the format or the math syntax changes, update that file too. The README links to it.
+
 ## Left to the builder
 
 - The exact component breakdown and file names beyond what's listed above.
