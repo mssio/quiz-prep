@@ -37,9 +37,7 @@ function TopBar() {
 				<span aria-hidden="true" className="text-[23px] text-[#e6bd55]">
 					◈
 				</span>
-				<span className="hidden phone:inline">
-					Your browser. Your progress.
-				</span>
+				<span className="hidden phone:inline">Practice until it sticks.</span>
 			</div>
 		</header>
 	);
