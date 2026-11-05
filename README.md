@@ -20,7 +20,7 @@ Each question starts with `## Q<number>`, followed by `- **Format:**`, `- **Ques
 
 Use the literal `unknown` for a missing answer key. Such questions are not scored. A file with errors is rejected as a whole, with question-specific messages, and the other files you added are still kept. Question text is shown as plain text, including fenced code, and is never run as HTML or JavaScript.
 
-To have an AI chat convert existing questions into this format, see [docs/question-conversion-instructions.md](docs/question-conversion-instructions.md).
+To have an AI chat convert existing questions into this format, with an explanation for each one, see [docs/question-conversion-instructions.md](docs/question-conversion-instructions.md). To add explanations to a Quiz Prep Markdown file you already have, without changing its answers, see [docs/add-explanations-instructions.md](docs/add-explanations-instructions.md).
 
 ## Math
 
