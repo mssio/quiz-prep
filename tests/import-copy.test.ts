@@ -35,12 +35,12 @@ function stateWith(attemptsPerQuiz: number[]): WorkspaceState {
 
 test("warning states what is lost and what replaces it", () => {
 	expect(importWarning(stateWith([3, 3, 4, 0]), 6)).toBe(
-		"This replaces your 4 quizzes and 10 recorded attempts with 6 quizzes from this file. This can't be undone.",
+		"This replaces your 4 quizzes, 10 recorded attempts and their saved answers with 6 quizzes from this file. This can't be undone.",
 	);
 });
 
 test("singular wording", () => {
 	expect(importWarning(stateWith([1]), 1)).toBe(
-		"This replaces your 1 quiz and 1 recorded attempt with 1 quiz from this file. This can't be undone.",
+		"This replaces your 1 quiz, 1 recorded attempt and their saved answers with 1 quiz from this file. This can't be undone.",
 	);
 });

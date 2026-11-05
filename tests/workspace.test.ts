@@ -303,18 +303,49 @@ test("retry entries are tagged", () => {
 	expect(entry.isRetry).toBe(true);
 });
 
-test("reset scores clears only that quiz and keeps its attempt", () => {
+test("reset scores clears only that quiz and keeps its unfinished session", () => {
 	const a = quizWith([tf(1)]);
 	const b = { ...quizWith([tf(1)]), id: "other" };
 	const { state, quizId } = started(a);
-	const done = submitAllTrue(state, quizId);
+	const finished = submitAllTrue(started(a).state, quizId).quizzes[0].history;
 	const both: WorkspaceState = {
-		quizzes: [done.quizzes[0], { ...b, history: done.quizzes[0].history }],
+		quizzes: [
+			{ ...state.quizzes[0], history: finished },
+			{ ...b, history: finished },
+		],
 	};
 	const next = workspaceReducer(both, { type: "resetScores", quizId });
 	expect(next.quizzes[0].history).toEqual([]);
 	expect(next.quizzes[0].attempt).toBe(both.quizzes[0].attempt);
 	expect(next.quizzes[1]).toBe(both.quizzes[1]);
+});
+
+test("reset scores clears a submitted attempt", () => {
+	const { state, quizId } = started(quizWith([tf(1)]));
+	const done = submitAllTrue(state, quizId);
+	const next = workspaceReducer(done, { type: "resetScores", quizId });
+	expect(next.quizzes[0].history).toEqual([]);
+	expect(next.quizzes[0].attempt).toBeNull();
+});
+
+test("reset scores clears an attempt waiting for self-assessment", () => {
+	const quiz = quizWith([tf(1), shortAnswer(2)]);
+	const { state, quizId } = started(quiz);
+	let next = send(state, quizId, {
+		type: "answer",
+		questionId: "q:2",
+		response: "x",
+	});
+	next = send(next, quizId, { type: "submit", at: SUBMIT_AT });
+	expect(quizStatus(next.quizzes[0])).toBe("pending");
+	next = workspaceReducer(next, { type: "resetScores", quizId });
+	expect(next.quizzes[0].attempt).toBeNull();
+});
+
+test("reset scores keeps an unfinished session", () => {
+	const { state, quizId } = started(quizWith([tf(1)]));
+	const next = workspaceReducer(state, { type: "resetScores", quizId });
+	expect(next.quizzes[0].attempt).toBe(state.quizzes[0].attempt);
 });
 
 test("delete removes the quiz with its attempt", () => {

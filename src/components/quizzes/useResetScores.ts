@@ -11,7 +11,7 @@ export function useResetScores(): (quiz: Quiz) => Promise<void> {
 	return async function resetScores(quiz) {
 		const ok = await confirm({
 			title: "Reset scores?",
-			copy: `This clears the score history for "${quiz.name}". This can't be undone.`,
+			copy: `This clears the score history and saved answers for "${quiz.name}", including your latest results. This can't be undone.`,
 			actionText: "Reset scores",
 			cancelText: "Cancel",
 		});

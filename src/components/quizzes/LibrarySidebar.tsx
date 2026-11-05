@@ -31,7 +31,7 @@ export function LibrarySidebar(props: Props) {
 				Reset everything
 			</Button>
 			<p className="mt-3 text-center text-xs leading-[1.6] text-muted">
-				Deletes all quizzes and score history in this browser.
+				Deletes all quizzes, score history and saved answers in this browser.
 			</p>
 		</section>
 	);
