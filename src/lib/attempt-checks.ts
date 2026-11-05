@@ -1,5 +1,5 @@
 import { hasUniqueValues } from "#/lib/answer-checks";
-import type { Choice, Question } from "#/lib/question-schema";
+import type { Choice, Question, QuestionContent } from "#/lib/question-schema";
 
 // Consistency checks for an attempt. Each returns an error message,
 // or null when everything is fine.
@@ -71,7 +71,10 @@ function isMultiSelectResponse(options: Choice[], response: unknown) {
 	);
 }
 
-function hasRightKind(question: Question, response: unknown): boolean {
+export function responseFits(
+	question: QuestionContent,
+	response: unknown,
+): boolean {
 	switch (question.format) {
 		case "single-choice":
 			return hasChoice(question.options, response);
@@ -99,7 +102,7 @@ function checkQuestion(attempt: AttemptShape, question: Question) {
 		return `display order for ${question.id} must list every choice once`;
 	}
 	const response = attempt.responses[question.id];
-	if (response !== undefined && !hasRightKind(question, response)) {
+	if (response !== undefined && !responseFits(question, response)) {
 		return `response for ${question.id} does not fit its format`;
 	}
 	return null;

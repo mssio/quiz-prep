@@ -8,9 +8,9 @@ const BUTTON_BASE =
 const BOXED = "rounded-lg px-[18px] py-3";
 
 const BUTTON_VARIANTS: Record<Variant, string> = {
-	primary: `${BOXED} bg-blue text-white enabled:hover:bg-[#1645b0]`,
-	secondary: `${BOXED} border border-[#cbd5e3] bg-white text-[#243b56] enabled:hover:bg-[#f1f5fb]`,
-	danger: `${BOXED} border border-[#e3b4ae] bg-[#ffedeb] text-[#a33b31] enabled:hover:bg-[#ffe0dc]`,
+	primary: `${BOXED} bg-accent text-on-accent enabled:hover:bg-accent-hover`,
+	secondary: `${BOXED} border border-edge bg-surface text-strong enabled:hover:bg-hover`,
+	danger: `${BOXED} border border-danger-border bg-danger-bg text-danger-text enabled:hover:bg-danger-hover`,
 	text: "rounded-[5px] bg-transparent p-2 text-blue",
 };
 
@@ -36,7 +36,7 @@ export function Button({
 
 export function Panel({ children }: { children: ReactNode }) {
 	return (
-		<section className="overflow-hidden rounded-2xl border border-line bg-white shadow-[0_3px_8px_#182b4210]">
+		<section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-[0_3px_8px_var(--color-shadow-soft)]">
 			{children}
 		</section>
 	);
@@ -106,7 +106,7 @@ export function WorkspaceGrid({
 
 export function Notice({ children }: { children: ReactNode }) {
 	return (
-		<div className="mb-[22px] flex flex-wrap items-center justify-between gap-3 rounded-[10px] bg-[#e9f1ff] px-5 py-4 text-[#254e92]">
+		<div className="mb-[22px] flex flex-wrap items-center justify-between gap-3 rounded-[10px] bg-info-bg px-5 py-4 text-info-text">
 			{children}
 		</div>
 	);
@@ -122,7 +122,7 @@ export function SectionLabel({ children }: { children: ReactNode }) {
 
 export function CountPill({ children }: { children: ReactNode }) {
 	return (
-		<span className="rounded-md bg-[#edf2fa] px-[9px] py-1.5 text-xs font-[650] text-[#415876]">
+		<span className="rounded-md bg-chip px-[9px] py-1.5 text-xs font-[650] text-slate">
 			{children}
 		</span>
 	);
@@ -138,7 +138,7 @@ export function SummaryRow({
 	return (
 		<div className="mb-[13px] flex justify-between gap-2.5 text-sm leading-[1.6] text-muted">
 			<span>{label}</span>
-			<strong className="font-semibold text-[#253d59]">{value}</strong>
+			<strong className="font-semibold text-strong">{value}</strong>
 		</div>
 	);
 }

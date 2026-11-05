@@ -95,7 +95,7 @@ function QuizList() {
 	async function deleteQuiz(quiz: Quiz) {
 		const ok = await confirm({
 			title: "Delete this quiz?",
-			copy: `This removes "${quiz.name}", its score history and any unfinished session. This can't be undone.`,
+			copy: `This removes "${quiz.name}", its score history, saved answers and any unfinished session. This can't be undone.`,
 			actionText: "Delete quiz",
 			cancelText: "Cancel",
 		});
@@ -105,7 +105,7 @@ function QuizList() {
 	async function resetEverything() {
 		const ok = await confirm({
 			title: "Reset everything?",
-			copy: "This removes every quiz, all score history and every unfinished session in this browser. This can't be undone.",
+			copy: "This removes every quiz, all score history and saved answers, and every unfinished session in this browser. This can't be undone.",
 			actionText: "Reset everything",
 			cancelText: "Cancel",
 		});

@@ -11,7 +11,7 @@ export function Assessment({ assessed, onAssess }: Props) {
 			? "Does your answer express the same meaning?"
 			: `Self-assessed: ${assessed ? "correct" : "incorrect"}`;
 	return (
-		<div className="rounded-lg border border-[#efdbaf] bg-[#fff7e8] p-[18px]">
+		<div className="rounded-lg border border-callout-border bg-callout-bg p-[18px]">
 			<strong>{title}</strong>
 			<p className="my-3.5 text-sm leading-[1.6] text-muted">
 				Compare your response with the model answer. Your assessment contributes

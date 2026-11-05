@@ -83,7 +83,7 @@ function PlayScreen() {
 					<Panel>
 						<PanelBody>
 							<div className="flex items-start justify-between gap-3 phone:items-center">
-								<span className="rounded-md bg-[#edf2fa] px-[9px] py-1.5 text-xs font-[650] text-[#415876]">
+								<span className="rounded-md bg-chip px-[9px] py-1.5 text-xs font-[650] text-slate">
 									{formatNames[question.format]}
 								</span>
 								<Button
@@ -91,7 +91,7 @@ function PlayScreen() {
 									aria-pressed={flagged}
 									className={
 										flagged
-											? "!border-[#d9b861] !bg-[#fff1cf] !text-[#774d0b]"
+											? "!border-warning-border !bg-warning-bg !text-warning-strong"
 											: ""
 									}
 									onClick={() =>
@@ -114,7 +114,7 @@ function PlayScreen() {
 								}
 							/>
 						</PanelBody>
-						<div className="flex justify-between gap-3 border-t border-line bg-[#fbfcfe] p-[18px] phone:px-7 phone:py-[21px]">
+						<div className="flex justify-between gap-3 border-t border-line bg-faint p-[18px] phone:px-7 phone:py-[21px]">
 							<Button
 								variant="secondary"
 								disabled={attempt.currentIndex === 0}

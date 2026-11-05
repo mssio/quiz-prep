@@ -132,7 +132,9 @@ export function gradeQuestion(
 	return { status, selfAssessed: false };
 }
 
-export function summarize(attempt: Attempt): Summary {
+export function summarize(
+	attempt: Pick<Attempt, "questions" | "responses" | "assessments" | "status">,
+): Summary {
 	const summary: Summary = {
 		correct: 0,
 		incorrect: 0,

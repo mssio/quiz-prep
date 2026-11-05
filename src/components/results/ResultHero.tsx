@@ -39,7 +39,7 @@ export function ResultHero({ summary }: { summary: Summary }) {
 	return (
 		<Panel>
 			<div className="flex items-start gap-[18px] p-[23px] phone:items-center phone:gap-7 phone:p-8">
-				<div className="flex h-24 min-w-24 items-center justify-center rounded-full border-[7px] border-[#dce7ff] text-[25px] font-[750] tracking-[-1px] text-blue phone:h-[130px] phone:min-w-[130px] phone:border-[9px] phone:text-[34px]">
+				<div className="flex h-24 min-w-24 items-center justify-center rounded-full border-[7px] border-ring-soft text-[25px] font-[750] tracking-[-1px] text-blue phone:h-[130px] phone:min-w-[130px] phone:border-[9px] phone:text-[34px]">
 					{formatPercent(summary.percentage)}
 				</div>
 				<div>

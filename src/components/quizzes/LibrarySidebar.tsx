@@ -16,7 +16,7 @@ type Props = {
 export function LibrarySidebar(props: Props) {
 	const status = storageStatus(props.saveOk);
 	return (
-		<section className="rounded-2xl border border-line bg-white p-6 shadow-[0_3px_8px_#182b4210] phone:p-[22px] tablet:p-[26px]">
+		<section className="rounded-2xl border border-line bg-surface p-6 shadow-[0_3px_8px_var(--color-shadow-soft)] phone:p-[22px] tablet:p-[26px]">
 			<SectionLabel>Add quizzes</SectionLabel>
 			<div className="mt-4">
 				<AddQuizzes busy={props.busy} onFiles={props.onFiles} />
@@ -31,7 +31,7 @@ export function LibrarySidebar(props: Props) {
 				Reset everything
 			</Button>
 			<p className="mt-3 text-center text-xs leading-[1.6] text-muted">
-				Deletes all quizzes and score history in this browser.
+				Deletes all quizzes, score history and saved answers in this browser.
 			</p>
 		</section>
 	);

@@ -1,12 +1,83 @@
 @import "tailwindcss";
 
 @theme {
-  --color-navy: #12243b;
-  --color-blue: #245ad7;
+  /* page and surfaces */
+  --color-page: #f3f6fa;
+  --color-surface: #ffffff;
+  --color-faint: #f8faff;
+  --color-sunken: #f4f7fc;
+  --color-hover: #f1f5fb;
+  --color-chip: #edf2fa;
+  --color-tint: #edf3ff;
+  --color-track: #e6edf6;
+
+  /* borders */
   --color-line: #dce3ed;
+  --color-edge: #cbd5e3;
+  --color-field: #b7c5d8;
+  --color-dashed: #aabbd2;
+  --color-ring-soft: #dce7ff;
+
+  /* text */
+  --color-ink: #17293f;
+  --color-heading: #12243b;
+  --color-strong: #243b56;
+  --color-slate: #415876;
+  --color-subtle: #59718f;
   --color-muted: #5c6c80;
+
+  /* accent */
+  --color-blue: #245ad7;
+  --color-accent: #245ad7;
+  --color-accent-hover: #1645b0;
+  --color-on-accent: #ffffff;
+  --color-focus: #dfaa29;
+
+  /* top bar (navy in both modes) */
+  --color-navy: #12243b;
+  --color-topbar-muted: #d8e2ef;
+  --color-gold: #e6bd55;
+  --color-gold-bar: #c9a24a;
+
+  /* info */
+  --color-info-bg: #e9f1ff;
+  --color-info-text: #1d4ba8;
+  --color-info-border: #c3d4f6;
+  --color-selected-bg: #ceddf8;
+  --color-steel: #3d5c8c;
+  --color-drag-border: #8daae7;
+
+  /* neutral status */
+  --color-neutral-bg: #edf0f4;
+
+  /* success */
+  --color-success-bg: #e7f4ed;
   --color-green: #196748;
+
+  /* danger */
+  --color-danger-bg: #ffedeb;
+  --color-danger-hover: #ffe0dc;
+  --color-danger-text: #a33b31;
+  --color-error: #b3261e;
+  --color-danger-border: #e3b4ae;
+
+  /* warning and notices */
+  --color-warning-bg: #fff1d7;
   --color-amber: #8b5716;
+  --color-warning-strong: #774d0b;
+  --color-warning-border: #d9b861;
+  --color-notice-bg: #fff5df;
+  --color-notice-border: #e8ca91;
+  --color-callout-bg: #fff7e8;
+  --color-callout-border: #efdbaf;
+
+  /* shadows and overlays */
+  --color-shadow-soft: #182b4210;
+  --color-shadow-lift: #245ad72b;
+  --color-shadow-modal: #12243b44;
+  --color-shadow-block: #e8edf6;
+  --color-halo: #dce6fe;
+  --color-backdrop: #0b1b32aa;
 
   --breakpoint-phone: 690px;
   --breakpoint-tablet: 860px;
@@ -17,9 +88,14 @@
   :root {
     font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont,
       "Segoe UI", sans-serif;
-    color: #17293f;
-    background: #f3f6fa;
+    color: var(--color-ink);
+    background: var(--color-page);
+    color-scheme: light;
     font-synthesis: none;
+  }
+
+  :root[data-theme="dark"] {
+    color-scheme: dark;
   }
 
   html,
@@ -59,7 +135,7 @@
   textarea:focus-visible,
   select:focus-visible,
   summary:focus-visible {
-    outline: 3px solid #dfaa29;
+    outline: 3px solid var(--color-focus);
     outline-offset: 4px;
   }
 
@@ -74,3 +150,60 @@
     }
   }
 }
+
+/* Dark palette: overrides the tokens above. Task 8 sets data-theme. */
+:root[data-theme="dark"] {
+  --color-page: #0c1524;
+  --color-surface: #15233b;
+  --color-faint: #121f35;
+  --color-sunken: #192943;
+  --color-hover: #1f3250;
+  --color-chip: #233654;
+  --color-tint: #1c3055;
+  --color-track: #2a3f5f;
+  --color-line: #2a3b58;
+  --color-edge: #3a4f73;
+  --color-field: #51688f;
+  --color-dashed: #5a7099;
+  --color-ring-soft: #29437a;
+  --color-ink: #e4ebf5;
+  --color-heading: #f2f6fb;
+  --color-strong: #d5dfee;
+  --color-slate: #bccbe0;
+  --color-subtle: #a3b7d3;
+  --color-muted: #9fb0c6;
+  --color-blue: #82aaff;
+  --color-accent: #3361d8;
+  --color-accent-hover: #2a52bd;
+  --color-focus: #e6b93a;
+  --color-info-bg: #1e3560;
+  --color-info-text: #a9c4ff;
+  --color-info-border: #3b5a96;
+  --color-selected-bg: #2c4a80;
+  --color-steel: #9fbbe8;
+  --color-drag-border: #5f86d6;
+  --color-neutral-bg: #253348;
+  --color-success-bg: #11382a;
+  --color-green: #5fd39a;
+  --color-danger-bg: #45201f;
+  --color-danger-hover: #582826;
+  --color-danger-text: #ff9f95;
+  --color-error: #ff9f95;
+  --color-danger-border: #7a3b38;
+  --color-warning-bg: #3f3010;
+  --color-amber: #ebb35e;
+  --color-warning-strong: #f3c872;
+  --color-warning-border: #8a6d26;
+  --color-notice-bg: #3a2d12;
+  --color-notice-border: #6b5522;
+  --color-callout-bg: #33280f;
+  --color-callout-border: #5a4720;
+  --color-shadow-soft: #00000066;
+  --color-shadow-lift: #00000080;
+  --color-shadow-modal: #000000aa;
+  --color-shadow-block: #0a1220;
+  --color-halo: #29437a;
+  --color-backdrop: #000000b3;
+}
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));

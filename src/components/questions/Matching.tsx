@@ -20,7 +20,7 @@ function LetteredList({ choices }: { choices: Choice[] }) {
 		<ul className="m-0 mb-3.5 list-none p-0">
 			{choices.map((choice, position) => (
 				<li key={choice.id} className="flex gap-2.5 leading-[1.6]">
-					<span className="min-w-4 text-xs leading-[26px] font-bold text-[#59718f]">
+					<span className="min-w-4 text-xs leading-[26px] font-bold text-subtle">
 						{letterFor(position)}
 					</span>
 					<span className="whitespace-pre-wrap">

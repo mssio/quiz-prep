@@ -14,5 +14,5 @@ export function importWarning(
 		"recorded attempts",
 	);
 	const incoming = count(incomingCount, "quiz", "quizzes");
-	return `This replaces your ${quizzes} and ${attempts} with ${incoming} from this file. This can't be undone.`;
+	return `This replaces your ${quizzes}, ${attempts}, their saved answers and any unfinished sessions with ${incoming} from this file. This can't be undone.`;
 }

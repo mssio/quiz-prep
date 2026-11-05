@@ -3,7 +3,7 @@ import { formatPercent, type QuizStats } from "#/lib/history";
 function Stat({ value, label }: { value: string | number; label: string }) {
 	return (
 		<div>
-			<b className="block text-lg font-[650] text-[#17293f]">{value}</b>
+			<b className="block text-lg font-[650] text-ink">{value}</b>
 			{label}
 		</div>
 	);

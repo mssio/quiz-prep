@@ -6,7 +6,7 @@ export function SaveWarning() {
 	return (
 		<div
 			role="alert"
-			className="m-4 rounded-lg border border-[#e8ca91] bg-[#fff5df] px-4 py-3.5 text-sm leading-[1.6] text-[#73470f] phone:mx-auto phone:mt-5 phone:mb-0 phone:max-w-[1128px]"
+			className="m-4 rounded-lg border border-notice-border bg-notice-bg px-4 py-3.5 text-sm leading-[1.6] text-warning-strong phone:mx-auto phone:mt-5 phone:mb-0 phone:max-w-[1128px]"
 		>
 			{warning}
 		</div>

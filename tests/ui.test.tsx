@@ -1,6 +1,9 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { expect, test } from "vitest";
+import { ConfirmBody } from "#/components/ConfirmDialog";
+import { HistoryTable } from "#/components/quizzes/HistoryTable";
 import { Button, PageHeading, SummaryRow } from "#/components/ui";
+import type { HistoryEntry } from "#/lib/schema";
 import { STORAGE_KEY, type StorageLike } from "#/lib/storage";
 import { useWorkspace, WorkspaceProvider } from "#/state/workspace";
 
@@ -33,7 +36,7 @@ test("Button defaults to type button and applies the variant", () => {
 	const html = renderToStaticMarkup(<Button variant="primary">Go</Button>);
 	expect(html).toContain('type="button"');
 	expect(html).toContain("Go");
-	expect(html).toContain("bg-blue");
+	expect(html).toContain("bg-accent");
 });
 
 test("Button lets callers override the type", () => {
@@ -78,4 +81,62 @@ test("provider restores a saved workspace", () => {
 	const saved = JSON.stringify({ version: 1, state: { quizzes: [] } });
 	expect(STORAGE_KEY).toBe("quiz-prep:v1");
 	expect(renderProbe(memory(saved))).toContain("0 quizzes");
+});
+
+test("ConfirmBody shows the checkbox only when a label is set", () => {
+	const base = { title: "T", copy: "C", actionText: "Go" };
+	const without = renderToStaticMarkup(
+		<ConfirmBody options={base} checked onCheckedChange={() => {}} />,
+	);
+	expect(without).not.toContain('type="checkbox"');
+	const withBox = renderToStaticMarkup(
+		<ConfirmBody
+			options={{ ...base, checkboxLabel: "Include score history" }}
+			checked
+			onCheckedChange={() => {}}
+		/>,
+	);
+	expect(withBox).toContain('type="checkbox"');
+	expect(withBox).toContain("Include score history");
+});
+
+function historyRow(id: string, review: HistoryEntry["review"]): HistoryEntry {
+	return {
+		id,
+		submittedAt: "2026-11-04T10:00:00.000Z",
+		questionCount: 5,
+		totalQuestions: 5,
+		correct: 5,
+		totalGradable: 5,
+		percentage: 100,
+		isRetry: false,
+		review,
+		retryOf: null,
+	};
+}
+
+test("only rows with saved answers get a Review link", () => {
+	const saved = { order: [], responses: {}, assessments: {}, flags: {} };
+	const html = renderToStaticMarkup(
+		<HistoryTable
+			history={[historyRow("a", saved), historyRow("b", null)]}
+			reviewLink={() => <a href="#x">Review</a>}
+		/>,
+	);
+	expect(html.match(/Review/g)).toHaveLength(1);
+});
+
+test("retries render under their session with an arrow", () => {
+	const parent = historyRow("p", null);
+	const retry = {
+		...historyRow("r", null),
+		isRetry: true,
+		retryOf: "p",
+		submittedAt: "2026-11-04T11:00:00.000Z",
+	};
+	const html = renderToStaticMarkup(
+		<HistoryTable history={[parent, retry]} reviewLink={() => null} />,
+	);
+	expect(html).toContain("↳");
+	expect(html.match(/↳/g)).toHaveLength(1);
 });

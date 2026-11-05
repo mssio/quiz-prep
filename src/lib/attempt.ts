@@ -26,7 +26,11 @@ export function choiceIds(q: Question): (string | boolean)[] {
 	}
 }
 
-type AttemptOptions = { isRetry?: boolean; keepOrder?: boolean };
+type AttemptOptions = {
+	isRetry?: boolean;
+	keepOrder?: boolean;
+	retryOf?: string | null;
+};
 
 function pickQuestions(
 	questions: Question[],
@@ -50,7 +54,7 @@ export function createAttempt(
 	questions: Question[],
 	rng: Rng = Math.random,
 	count: number = questions.length,
-	{ isRetry = false, keepOrder = false }: AttemptOptions = {},
+	{ isRetry = false, keepOrder = false, retryOf = null }: AttemptOptions = {},
 ): Attempt {
 	if (!Number.isInteger(count) || count < 1 || count > questions.length) {
 		throw new RangeError("Question count must be between 1 and the pool size.");
@@ -74,6 +78,7 @@ export function createAttempt(
 		status: "active",
 		isRetry,
 		keepOrder,
+		retryOf,
 		submittedAt: null,
 	};
 }
@@ -132,5 +137,6 @@ export function retryMissed(
 	return createAttempt(missed, rng, missed.length, {
 		isRetry: true,
 		keepOrder: attempt.keepOrder,
+		retryOf: attempt.retryOf ?? attempt.id,
 	});
 }

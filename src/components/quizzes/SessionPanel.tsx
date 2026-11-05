@@ -45,11 +45,11 @@ export function SessionPanel({ quiz, saveOk, onStart }: Props) {
 					aria-invalid={invalid}
 					aria-describedby="session-count-error"
 					onChange={(event) => setText(event.target.value)}
-					className="mb-2 min-h-11 w-full rounded-lg border border-[#b7c5d8] bg-white px-3 text-[15px]"
+					className="mb-2 min-h-11 w-full rounded-lg border border-field bg-surface px-3 text-[15px]"
 				/>
 				<p
 					id="session-count-error"
-					className="mb-3 min-h-5 text-xs text-[#a33b31]"
+					className="mb-3 min-h-5 text-xs text-danger-text"
 				>
 					{invalid ? `Choose a whole number from 1 to ${total}.` : ""}
 				</p>

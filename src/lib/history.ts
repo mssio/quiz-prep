@@ -1,11 +1,22 @@
 import { summarize } from "#/lib/grading";
-import type { Attempt, HistoryEntry } from "#/lib/schema";
+import type {
+	Attempt,
+	HistoryEntry,
+	Quiz,
+	SessionReview,
+	WorkspaceState,
+} from "#/lib/schema";
 
 export type QuizStats = {
 	best: number | null;
 	average: number | null;
 	attempts: number;
 };
+
+export function reviewOf(attempt: Attempt): SessionReview {
+	const { order, responses, assessments, flags } = attempt;
+	return structuredClone({ order, responses, assessments, flags });
+}
 
 // Only a finalized attempt with a percentage becomes a history entry.
 export function historyEntryFor(
@@ -24,7 +35,27 @@ export function historyEntryFor(
 		totalGradable: summary.totalGradable,
 		percentage: summary.percentage,
 		isRetry: attempt.isRetry,
+		review: reviewOf(attempt),
+		retryOf: attempt.retryOf,
 	};
+}
+
+function backfillQuiz(quiz: Quiz): Quiz {
+	const { attempt } = quiz;
+	if (!attempt || !summarize(attempt).finalized) return quiz;
+	const missing = (entry: HistoryEntry) =>
+		entry.id === attempt.id && entry.review === null;
+	if (!quiz.history.some(missing)) return quiz;
+	const history = quiz.history.map((entry) =>
+		missing(entry) ? { ...entry, review: reviewOf(attempt) } : entry,
+	);
+	return { ...quiz, history };
+}
+
+// A quiz's saved attempt is the one past session whose answers still exist, so
+// an entry saved before reviews existed can take them from it.
+export function backfillReviews(state: WorkspaceState): WorkspaceState {
+	return { ...state, quizzes: state.quizzes.map(backfillQuiz) };
 }
 
 // Retries are practice, so they never count towards best, average or attempts.
@@ -38,6 +69,85 @@ export function quizStats(history: HistoryEntry[]): QuizStats {
 		average: total / counted.length,
 		attempts: counted.length,
 	};
+}
+
+export type SessionView = Pick<
+	Attempt,
+	"questions" | "order" | "responses" | "assessments" | "flags" | "status"
+>;
+
+// A past session as the review screens show it: the questions the quiz still
+// has, in the order they were shown. Null when the session has no saved answers.
+export function sessionView(
+	quiz: Quiz,
+	sessionId: string,
+): { entry: HistoryEntry; view: SessionView } | null {
+	const entry = quiz.history.find((item) => item.id === sessionId);
+	if (!entry || entry.review === null) return null;
+	const { review } = entry;
+	const byId = new Map(quiz.questions.map((q) => [q.id, q]));
+	const order = review.order.filter((id) => byId.has(id));
+	const questions = order.flatMap((id) => byId.get(id) ?? []);
+	return {
+		entry,
+		view: {
+			questions,
+			order,
+			responses: review.responses,
+			assessments: review.assessments,
+			flags: review.flags,
+			status: "submitted",
+		},
+	};
+}
+
+export type SessionGroup = { entry: HistoryEntry; retries: HistoryEntry[] };
+
+const dateFormat = new Intl.DateTimeFormat("en", {
+	dateStyle: "medium",
+	timeStyle: "short",
+});
+
+export function formatSessionDate(iso: string): string {
+	return dateFormat.format(new Date(iso));
+}
+
+// Sessions newest first, each followed by its retries oldest first. A retry
+// groups under the root of its retryOf chain: the last entry that exists, so a
+// retry of a retry joins the original session. Entries whose chain loops back
+// on itself (a cycle or self-reference) stay top-level. Every entry appears
+// exactly once.
+export function groupHistory(history: HistoryEntry[]): SessionGroup[] {
+	const byId = new Map<string, HistoryEntry>();
+	for (const entry of history)
+		if (!byId.has(entry.id)) byId.set(entry.id, entry);
+	const rootOf = (entry: HistoryEntry): HistoryEntry => {
+		const seen = new Set([entry.id]);
+		let current = entry;
+		for (;;) {
+			const next =
+				current.retryOf === null ? undefined : byId.get(current.retryOf);
+			if (!next) return current;
+			if (seen.has(next.id)) return entry;
+			seen.add(next.id);
+			current = next;
+		}
+	};
+	const newestFirst = [...history].sort((a, b) =>
+		b.submittedAt.localeCompare(a.submittedAt),
+	);
+	const roots = new Map<HistoryEntry, HistoryEntry>();
+	const groups = new Map<HistoryEntry, SessionGroup>();
+	for (const entry of newestFirst) {
+		const root = rootOf(entry);
+		roots.set(entry, root);
+		if (root === entry) groups.set(entry, { entry, retries: [] });
+	}
+	for (const entry of [...newestFirst].reverse()) {
+		const root = roots.get(entry);
+		if (root && root !== entry) groups.get(root)?.retries.push(entry);
+	}
+	return [...groups.values()];
 }
 
 const percentFormat = new Intl.NumberFormat("en", { maximumFractionDigits: 1 });

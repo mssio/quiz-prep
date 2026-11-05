@@ -20,6 +20,8 @@ function entry(id: string): HistoryEntry {
 		totalGradable: 5,
 		percentage: 80,
 		isRetry: false,
+		review: null,
+		retryOf: null,
 	};
 }
 
@@ -33,12 +35,12 @@ function stateWith(attemptsPerQuiz: number[]): WorkspaceState {
 
 test("warning states what is lost and what replaces it", () => {
 	expect(importWarning(stateWith([3, 3, 4, 0]), 6)).toBe(
-		"This replaces your 4 quizzes and 10 recorded attempts with 6 quizzes from this file. This can't be undone.",
+		"This replaces your 4 quizzes, 10 recorded attempts, their saved answers and any unfinished sessions with 6 quizzes from this file. This can't be undone.",
 	);
 });
 
 test("singular wording", () => {
 	expect(importWarning(stateWith([1]), 1)).toBe(
-		"This replaces your 1 quiz and 1 recorded attempt with 1 quiz from this file. This can't be undone.",
+		"This replaces your 1 quiz, 1 recorded attempt, their saved answers and any unfinished sessions with 1 quiz from this file. This can't be undone.",
 	);
 });

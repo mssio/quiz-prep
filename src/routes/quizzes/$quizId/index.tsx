@@ -20,7 +20,7 @@ import {
 } from "#/components/ui";
 import { createAttempt } from "#/lib/attempt";
 import { countLabel } from "#/lib/formats";
-import { quizStats } from "#/lib/history";
+import { formatSessionDate, quizStats } from "#/lib/history";
 import type { Quiz } from "#/lib/schema";
 import { replaceCopy } from "#/lib/session";
 import { findQuiz, type QuizStatus, quizStatus } from "#/lib/workspace";
@@ -31,7 +31,7 @@ export const Route = createFileRoute("/quizzes/$quizId/")({
 });
 
 const LINK_BUTTON =
-	"inline-flex min-h-11 items-center justify-center rounded-lg bg-blue px-[18px] py-3 text-sm font-[650] text-white no-underline hover:bg-[#1645b0]";
+	"inline-flex min-h-11 items-center justify-center rounded-lg bg-accent px-[18px] py-3 text-sm font-[650] text-on-accent no-underline hover:bg-accent-hover";
 
 function UnfinishedNotice({
 	quizId,
@@ -88,7 +88,19 @@ function HistoryPanel({ quiz, onReset }: { quiz: Quiz; onReset(): void }) {
 			<PanelBody>
 				<QuizStatsBlock stats={quizStats(quiz.history)} />
 				<hr className="my-6 border-line" />
-				<HistoryTable history={quiz.history} />
+				<HistoryTable
+					history={quiz.history}
+					reviewLink={(entry) => (
+						<Link
+							to="/quizzes/$quizId/sessions/$sessionId"
+							params={{ quizId: quiz.id, sessionId: entry.id }}
+							aria-label={`Review ${entry.isRetry ? "retry" : "session"} from ${formatSessionDate(entry.submittedAt)}`}
+							className="-my-2 inline-flex min-h-11 items-center px-2 text-sm font-[650]"
+						>
+							Review
+						</Link>
+					)}
+				/>
 				<p className="mt-4 text-[13px] text-muted">
 					Retries are shown but not counted in Best or Average.
 				</p>

@@ -106,6 +106,7 @@ export function workspaceReducer(
 			return updateQuiz(state, action.quizId, (quiz) => ({
 				...quiz,
 				history: [],
+				attempt: quiz.attempt?.status === "active" ? quiz.attempt : null,
 			}));
 		case "deleteQuiz":
 			return {

@@ -7,6 +7,23 @@
     <title>Quiz Prep · Your questions, your pace</title>
     <meta name="description" content="Turn your Markdown question banks into focused quizzes. Track your scores and revisit what you missed.">
     <meta name="theme-color" content="#12243b">
+    <script>
+      (() => {
+        let theme = "light";
+        try {
+          let saved = null;
+          try {
+            saved = localStorage.getItem("quiz-prep:theme");
+          } catch {}
+          if (saved === "dark" || saved === "light") {
+            theme = saved;
+          } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            theme = "dark";
+          }
+        } catch {}
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   </head>
   <body>
