@@ -193,6 +193,21 @@ test("a retry of a retry stays a retry", () => {
 	expect(again?.isRetry).toBe(true);
 });
 
+test("a retry links to its source, and a retry of a retry to the original", () => {
+	const finalized = finalisedAttemptWithOneMiss();
+	expect(finalized.retryOf).toBeNull();
+	const first = retryMissed(finalized);
+	if (!first) throw new Error("expected a retry");
+	expect(first.retryOf).toBe(finalized.id);
+	const answeredWrong = updateAttempt(first, {
+		type: "answer",
+		questionId: tf.id,
+		response: false,
+	});
+	const second = retryMissed(submit(answeredWrong));
+	expect(second?.retryOf).toBe(finalized.id);
+});
+
 test("answerText shows a single fill-in-blank answer without a number", () => {
 	const one = { ...blank, answer: ["0.35"] } as Question;
 	expect(answerText(one, ["0.35"], true)).toBe("0.35");

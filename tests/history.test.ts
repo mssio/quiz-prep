@@ -1,6 +1,11 @@
 import { expect, test } from "vitest";
 import { createAttempt, updateAttempt } from "#/lib/attempt";
-import { formatPercent, historyEntryFor, quizStats } from "#/lib/history";
+import {
+	formatPercent,
+	historyEntryFor,
+	quizStats,
+	reviewOf,
+} from "#/lib/history";
 import type { HistoryEntry, Question } from "#/lib/schema";
 
 function e(
@@ -16,6 +21,8 @@ function e(
 		totalGradable: 5,
 		percentage,
 		isRetry: false,
+		review: null,
+		retryOf: null,
 		...extra,
 	};
 }
@@ -83,6 +90,13 @@ test("historyEntryFor describes a finalized attempt", () => {
 		totalGradable: 2,
 		percentage: 50,
 		isRetry: false,
+		review: {
+			order: attempt.order,
+			responses: { "q:1": true },
+			assessments: {},
+			flags: {},
+		},
+		retryOf: null,
 	});
 });
 
@@ -93,4 +107,49 @@ test("historyEntryFor is null when nothing is gradable", () => {
 		at: "2026-11-04T10:00:00Z",
 	});
 	expect(historyEntryFor(attempt, 1)).toBeNull();
+});
+
+test("a finalized attempt's entry carries its answers and retry link", () => {
+	let finalizedRetry = createAttempt([trueFalse(1)], Math.random, 1, {
+		isRetry: true,
+		retryOf: "original",
+	});
+	finalizedRetry = updateAttempt(finalizedRetry, {
+		type: "answer",
+		questionId: "q:1",
+		response: true,
+	});
+	finalizedRetry = updateAttempt(finalizedRetry, {
+		type: "flag",
+		questionId: "q:1",
+	});
+	finalizedRetry = updateAttempt(finalizedRetry, {
+		type: "submit",
+		at: "2026-11-04T10:00:00Z",
+	});
+	const entry = historyEntryFor(finalizedRetry, 5);
+	expect(entry?.review?.order).toEqual(finalizedRetry.order);
+	expect(entry?.review?.responses).toEqual(finalizedRetry.responses);
+	expect(entry?.review?.flags).toEqual(finalizedRetry.flags);
+	expect(entry?.retryOf).toBe("original");
+});
+
+test("reviewOf shares nothing with the attempt", () => {
+	const attempt = {
+		...createAttempt([trueFalse(1)]),
+		responses: { "q:1": ["a"] },
+		assessments: { "q:1": true },
+		flags: { "q:1": true },
+	};
+	const review = reviewOf(attempt);
+	expect(review).toEqual({
+		order: attempt.order,
+		responses: attempt.responses,
+		assessments: attempt.assessments,
+		flags: attempt.flags,
+	});
+	expect(review.order).not.toBe(attempt.order);
+	expect(review.responses["q:1"]).not.toBe(attempt.responses["q:1"]);
+	expect(review.assessments).not.toBe(attempt.assessments);
+	expect(review.flags).not.toBe(attempt.flags);
 });

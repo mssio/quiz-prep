@@ -1,3 +1,4 @@
+import { backfillReviews } from "#/lib/history";
 import { type WorkspaceState, workspaceStateSchema } from "#/lib/schema";
 
 export const STORAGE_KEY = "quiz-prep:v1";
@@ -43,7 +44,7 @@ export function saveState(
 function parseSavedState(raw: string): WorkspaceState {
 	const envelope = JSON.parse(raw);
 	if (envelope?.version !== 1) throw new Error("unknown version");
-	return workspaceStateSchema.parse(envelope.state);
+	return backfillReviews(workspaceStateSchema.parse(envelope.state));
 }
 
 export function loadState(storage: StorageLike): {

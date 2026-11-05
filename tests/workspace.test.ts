@@ -216,7 +216,7 @@ test("pending attempt records nothing until the last assessment", () => {
 	expect(next.quizzes[0].history[0].percentage).toBe(100);
 });
 
-test("all-unknown attempt records nothing", () => {
+test("an all-unknown session records no entry", () => {
 	const quiz = quizWith([tf(1, null)]);
 	const { state, quizId } = started(quiz);
 	const done = send(state, quizId, { type: "submit", at: SUBMIT_AT });
@@ -245,6 +245,29 @@ test("changing an assessment updates the same entry", () => {
 	});
 	expect(next.quizzes[0].history).toHaveLength(1);
 	expect(next.quizzes[0].history[0].percentage).toBe(0);
+});
+
+test("changing a self-assessment updates the saved answers", () => {
+	const quiz = quizWith([shortAnswer(1)]);
+	const { state, quizId } = started(quiz);
+	let next = send(state, quizId, {
+		type: "answer",
+		questionId: "q:1",
+		response: "x",
+	});
+	next = send(next, quizId, { type: "submit", at: SUBMIT_AT });
+	next = send(next, quizId, {
+		type: "assess",
+		questionId: "q:1",
+		correct: true,
+	});
+	expect(next.quizzes[0].history[0].review?.assessments["q:1"]).toBe(true);
+	next = send(next, quizId, {
+		type: "assess",
+		questionId: "q:1",
+		correct: false,
+	});
+	expect(next.quizzes[0].history[0].review?.assessments["q:1"]).toBe(false);
 });
 
 test("changing an assessment after reset scores adds nothing", () => {
@@ -378,6 +401,8 @@ test("totalAttempts sums counted attempts across quizzes", () => {
 		totalGradable: 1,
 		percentage: 100,
 		isRetry,
+		review: null,
+		retryOf: null,
 	});
 	a.history = [entry(false), entry(true)];
 	b.history = [entry(false), entry(false)];

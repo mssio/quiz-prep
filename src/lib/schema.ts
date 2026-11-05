@@ -12,6 +12,13 @@ export const responseValueSchema = z.union([
 	z.record(z.string(), z.string()),
 ]);
 
+export const sessionReviewSchema = z.object({
+	order: z.array(z.string()),
+	responses: z.record(z.string(), responseValueSchema),
+	assessments: z.record(z.string(), z.boolean()),
+	flags: z.record(z.string(), z.boolean()),
+});
+
 export const attemptSchema = z
 	.object({
 		id: z.string(),
@@ -29,6 +36,8 @@ export const attemptSchema = z
 		isRetry: z.boolean(),
 		// Attempts saved before this option have no value, and were shuffled.
 		keepOrder: z.boolean().default(false),
+		// The session a retry came from. Saves from before this field have none.
+		retryOf: z.string().nullable().default(null),
 		submittedAt: z.string().nullable(),
 	})
 	.superRefine((attempt, ctx) => {
@@ -46,6 +55,10 @@ export const historyEntrySchema = z.object({
 	totalGradable: z.number().int(),
 	percentage: z.number(),
 	isRetry: z.boolean(),
+	// Saves from before session review have neither. A review is deliberately
+	// not checked against the quiz's questions, so a mismatch can't fail a load.
+	review: sessionReviewSchema.nullable().default(null),
+	retryOf: z.string().nullable().default(null),
 });
 
 export const quizSchema = z
@@ -86,6 +99,7 @@ export const workspaceStateSchema = z
 
 export type { Choice, Question, QuestionContent } from "#/lib/question-schema";
 export type ResponseValue = z.infer<typeof responseValueSchema>;
+export type SessionReview = z.infer<typeof sessionReviewSchema>;
 export type Attempt = z.infer<typeof attemptSchema>;
 export type HistoryEntry = z.infer<typeof historyEntrySchema>;
 export type Quiz = z.infer<typeof quizSchema>;

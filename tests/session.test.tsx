@@ -29,6 +29,8 @@ function entry(id: string, submittedAt: string, over: Partial<HistoryEntry>) {
 		totalGradable: 10,
 		percentage: 100,
 		isRetry: false,
+		review: null,
+		retryOf: null,
 		...over,
 	} satisfies HistoryEntry;
 }

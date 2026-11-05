@@ -1,11 +1,22 @@
 import { summarize } from "#/lib/grading";
-import type { Attempt, HistoryEntry } from "#/lib/schema";
+import type {
+	Attempt,
+	HistoryEntry,
+	Quiz,
+	SessionReview,
+	WorkspaceState,
+} from "#/lib/schema";
 
 export type QuizStats = {
 	best: number | null;
 	average: number | null;
 	attempts: number;
 };
+
+export function reviewOf(attempt: Attempt): SessionReview {
+	const { order, responses, assessments, flags } = attempt;
+	return structuredClone({ order, responses, assessments, flags });
+}
 
 // Only a finalized attempt with a percentage becomes a history entry.
 export function historyEntryFor(
@@ -24,7 +35,27 @@ export function historyEntryFor(
 		totalGradable: summary.totalGradable,
 		percentage: summary.percentage,
 		isRetry: attempt.isRetry,
+		review: reviewOf(attempt),
+		retryOf: attempt.retryOf,
 	};
+}
+
+function backfillQuiz(quiz: Quiz): Quiz {
+	const { attempt } = quiz;
+	if (!attempt || !summarize(attempt).finalized) return quiz;
+	const missing = (entry: HistoryEntry) =>
+		entry.id === attempt.id && entry.review === null;
+	if (!quiz.history.some(missing)) return quiz;
+	const history = quiz.history.map((entry) =>
+		missing(entry) ? { ...entry, review: reviewOf(attempt) } : entry,
+	);
+	return { ...quiz, history };
+}
+
+// A quiz's saved attempt is the one past session whose answers still exist, so
+// an entry saved before reviews existed can take them from it.
+export function backfillReviews(state: WorkspaceState): WorkspaceState {
+	return { ...state, quizzes: state.quizzes.map(backfillQuiz) };
 }
 
 // Retries are practice, so they never count towards best, average or attempts.

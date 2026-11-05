@@ -31,6 +31,8 @@ function buildState(): WorkspaceState {
 			totalGradable: 3,
 			percentage: 66,
 			isRetry: false,
+			review: null,
+			retryOf: null,
 		},
 	];
 	return { quizzes: [first, second] };

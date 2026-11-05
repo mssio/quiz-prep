@@ -20,6 +20,8 @@ function entry(id: string): HistoryEntry {
 		totalGradable: 5,
 		percentage: 80,
 		isRetry: false,
+		review: null,
+		retryOf: null,
 	};
 }
 
