@@ -7,6 +7,7 @@ import {
 import { useEffect, useRef } from "react";
 import { ConfirmProvider } from "#/components/ConfirmDialog";
 import { SaveWarning } from "#/components/SaveWarning";
+import { ThemeSelect } from "#/components/ThemeSelect";
 import { useFocusMain } from "#/components/useFocusMain";
 import { WorkspaceProvider } from "#/state/workspace";
 
@@ -38,6 +39,7 @@ function TopBar() {
 					◈
 				</span>
 				<span className="hidden phone:inline">Practice until it sticks.</span>
+				<ThemeSelect />
 			</div>
 		</header>
 	);
