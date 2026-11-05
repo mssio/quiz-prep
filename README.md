@@ -2,7 +2,9 @@
 
 Quiz Prep is a study app for practising quizzes written in Markdown. It runs entirely in your browser: you add Markdown files, each file becomes a quiz, and you take sessions of any size, with shuffled questions and choices. Everything is saved in this browser's local storage, and nothing is uploaded anywhere.
 
-It includes score history for each quiz, review flags, a results review, self-assessment for short answers, "Retry missed" sessions, and export and import of quiz sets.
+It includes score history for each quiz, a review of every past session, review flags, a results review, self-assessment for short answers, "Retry missed" sessions, and export and import of quiz sets.
+
+It follows your device's light or dark setting, or you can choose one from the top bar.
 
 ## Question format
 
@@ -40,10 +42,12 @@ Each fully correct question is worth one point. Multiple selections, blanks, mat
 
 Progress is stored under `quiz-prep:v1` in this browser's local storage. It does not sync to other browsers or devices, and clearing site data removes it. If saving fails, a warning is shown and the session keeps working in memory.
 
+Each finished session keeps your answers, so you can review it from the score history. Retries are grouped under the session they came from, and each has its own review. A session with no answer keys isn't recorded. Sessions finished before this feature have no saved answers, apart from the latest one on each quiz.
+
 ## Export and import
 
-- **Export** downloads `quiz-prep-export.json`, a JSON file with every quiz's name, filename, title, course, and questions with their answer keys. It has no score history and no unfinished sessions. Export is disabled when there are no quizzes.
-- **Import** takes an export file and **replaces everything**: all quizzes, score history and unfinished sessions. Quiz names come from the file. The file is fully checked first; if it isn't a Quiz Prep export, or is damaged, a message is shown and nothing changes. A valid file asks for confirmation, saying what will be lost. Imported quizzes start with no scores.
+- **Export** downloads `quiz-prep-export.json`, a JSON file with every quiz's name, filename, title, course, and questions with their answer keys. If you have score history, a checkbox lets you include it, with your saved answers. Unfinished sessions are never included. Export is disabled when there are no quizzes.
+- **Import** takes an export file and **replaces everything**: all quizzes, score history and unfinished sessions. Quiz names come from the file. The file is fully checked first; if it isn't a Quiz Prep export, or is damaged, a message is shown and nothing changes. A valid file asks for confirmation, saying what will be lost. If the file has score history, a checkbox lets you restore it. Otherwise imported quizzes start with no scores.
 
 ## Commands
 
