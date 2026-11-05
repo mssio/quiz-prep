@@ -88,7 +88,7 @@ function HistoryPanel({ quiz, onReset }: { quiz: Quiz; onReset(): void }) {
 			<PanelBody>
 				<QuizStatsBlock stats={quizStats(quiz.history)} />
 				<hr className="my-6 border-line" />
-				<HistoryTable history={quiz.history} />
+				<HistoryTable history={quiz.history} reviewLink={() => null} />
 				<p className="mt-4 text-[13px] text-muted">
 					Retries are shown but not counted in Best or Average.
 				</p>

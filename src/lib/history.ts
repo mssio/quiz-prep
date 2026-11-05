@@ -71,6 +71,48 @@ export function quizStats(history: HistoryEntry[]): QuizStats {
 	};
 }
 
+export type SessionGroup = { entry: HistoryEntry; retries: HistoryEntry[] };
+
+const dateFormat = new Intl.DateTimeFormat("en", {
+	dateStyle: "medium",
+	timeStyle: "short",
+});
+
+export function formatSessionDate(iso: string): string {
+	return dateFormat.format(new Date(iso));
+}
+
+// Sessions newest first, each followed by its retries oldest first. Links can
+// be missing, self-referencing, nested or cyclic, so an entry nests only under
+// a different entry that has no parent of its own; all others stay top-level.
+// Every entry therefore appears exactly once.
+export function groupHistory(history: HistoryEntry[]): SessionGroup[] {
+	const byId = new Map<string, HistoryEntry>();
+	for (const entry of history)
+		if (!byId.has(entry.id)) byId.set(entry.id, entry);
+	const hasNoParent = (entry: HistoryEntry) =>
+		entry.retryOf === null ||
+		entry.retryOf === entry.id ||
+		!byId.has(entry.retryOf);
+	const parentOf = (entry: HistoryEntry): HistoryEntry | null => {
+		if (entry.retryOf === null || entry.retryOf === entry.id) return null;
+		const parent = byId.get(entry.retryOf);
+		return parent && hasNoParent(parent) ? parent : null;
+	};
+	const newestFirst = [...history].sort((a, b) =>
+		b.submittedAt.localeCompare(a.submittedAt),
+	);
+	const groups = new Map<HistoryEntry, SessionGroup>();
+	for (const entry of newestFirst) {
+		if (!parentOf(entry)) groups.set(entry, { entry, retries: [] });
+	}
+	for (const entry of [...newestFirst].reverse()) {
+		const parent = parentOf(entry);
+		if (parent) groups.get(parent)?.retries.push(entry);
+	}
+	return [...groups.values()];
+}
+
 const percentFormat = new Intl.NumberFormat("en", { maximumFractionDigits: 1 });
 
 export function formatPercent(value: number | null): string {

@@ -46,7 +46,7 @@ const newerRetry = entry("b", "2026-11-04T09:00:00.000Z", {
 
 test("history is newest first, shows 'n of N' and tags retries", () => {
 	const h = renderToStaticMarkup(
-		<HistoryTable history={[older, newerRetry]} />,
+		<HistoryTable history={[older, newerRetry]} reviewLink={() => null} />,
 	);
 	expect(h.indexOf("Retry missed")).toBeLessThan(h.indexOf("10 of 10"));
 	expect(h).toContain("3 of 10");
@@ -54,7 +54,9 @@ test("history is newest first, shows 'n of N' and tags retries", () => {
 });
 
 test("history shows an empty state without entries", () => {
-	const h = renderToStaticMarkup(<HistoryTable history={[]} />);
+	const h = renderToStaticMarkup(
+		<HistoryTable history={[]} reviewLink={() => null} />,
+	);
 	expect(h).toContain("No finished attempts yet.");
 	expect(h).not.toContain("<table");
 });
