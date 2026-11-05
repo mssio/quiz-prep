@@ -1,10 +1,11 @@
 import { useRef, useState } from "react";
-import { useConfirm } from "#/components/ConfirmDialog";
+import { useConfirm, useConfirmChoice } from "#/components/ConfirmDialog";
 import { Button } from "#/components/ui";
 import { importWarning } from "#/lib/import-copy";
 import {
 	buildExport,
 	EXPORT_FILENAME,
+	exportHasHistory,
 	parseExport,
 	quizzesFromExport,
 	serializeExport,
@@ -42,11 +43,25 @@ export function TransferButtons({
 }) {
 	const { state, dispatch } = useWorkspace();
 	const confirm = useConfirm();
+	const confirmChoice = useConfirmChoice();
 	const inputRef = useRef<HTMLInputElement>(null);
 	const [error, setError] = useState<string | null>(null);
 
-	function exportQuizzes() {
-		const file = buildExport(state, new Date().toISOString());
+	async function exportQuizzes() {
+		const exportedAt = new Date().toISOString();
+		let includeHistory = false;
+		if (exportHasHistory(buildExport(state, exportedAt, true).quizzes)) {
+			const choice = await confirmChoice({
+				title: "Export quizzes",
+				copy: "Score history includes your saved answers from past sessions.",
+				actionText: "Export",
+				cancelText: "Cancel",
+				checkboxLabel: "Include score history",
+			});
+			if (!choice.confirmed) return;
+			includeHistory = choice.checked;
+		}
+		const file = buildExport(state, exportedAt, includeHistory);
 		downloadText(serializeExport(file), EXPORT_FILENAME);
 	}
 
@@ -56,14 +71,28 @@ export function TransferButtons({
 		if (text === null) return setError(READ_FAILED_MESSAGE);
 		const parsed = parseExport(text);
 		if (!parsed.ok) return setError(parsed.message);
-		const ok = await confirm({
+		const replace = {
 			title: "Replace everything?",
 			copy: importWarning(state, parsed.quizzes.length),
 			actionText: "Replace everything",
 			cancelText: "Cancel",
-		});
-		if (!ok) return;
-		const quizzes = quizzesFromExport(parsed.quizzes, new Date().toISOString());
+		};
+		let includeHistory = false;
+		if (exportHasHistory(parsed.quizzes)) {
+			const choice = await confirmChoice({
+				...replace,
+				checkboxLabel: "Include score history",
+			});
+			if (!choice.confirmed) return;
+			includeHistory = choice.checked;
+		} else if (!(await confirm(replace))) {
+			return;
+		}
+		const quizzes = quizzesFromExport(
+			parsed.quizzes,
+			new Date().toISOString(),
+			includeHistory,
+		);
 		dispatch({ type: "replaceState", state: { quizzes } });
 		onImported();
 	}

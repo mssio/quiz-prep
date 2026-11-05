@@ -1,5 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { expect, test } from "vitest";
+import { ConfirmBody } from "#/components/ConfirmDialog";
 import { Button, PageHeading, SummaryRow } from "#/components/ui";
 import { STORAGE_KEY, type StorageLike } from "#/lib/storage";
 import { useWorkspace, WorkspaceProvider } from "#/state/workspace";
@@ -78,4 +79,21 @@ test("provider restores a saved workspace", () => {
 	const saved = JSON.stringify({ version: 1, state: { quizzes: [] } });
 	expect(STORAGE_KEY).toBe("quiz-prep:v1");
 	expect(renderProbe(memory(saved))).toContain("0 quizzes");
+});
+
+test("ConfirmBody shows the checkbox only when a label is set", () => {
+	const base = { title: "T", copy: "C", actionText: "Go" };
+	const without = renderToStaticMarkup(
+		<ConfirmBody options={base} checked onCheckedChange={() => {}} />,
+	);
+	expect(without).not.toContain('type="checkbox"');
+	const withBox = renderToStaticMarkup(
+		<ConfirmBody
+			options={{ ...base, checkboxLabel: "Include score history" }}
+			checked
+			onCheckedChange={() => {}}
+		/>,
+	);
+	expect(withBox).toContain('type="checkbox"');
+	expect(withBox).toContain("Include score history");
 });
