@@ -2,6 +2,12 @@ import { z } from "zod";
 import { hasUniqueValues } from "#/lib/answer-checks";
 import type { QuestionContent, Quiz, WorkspaceState } from "#/lib/schema";
 import { questionContentSchema } from "#/lib/schema";
+import {
+	checkExportHistory,
+	exportHistoryEntrySchema,
+	fromExportHistory,
+	toExportHistory,
+} from "#/lib/transfer-history";
 import { createQuiz } from "#/lib/workspace";
 
 export const EXPORT_FILENAME = "quiz-prep-export.json";
@@ -16,6 +22,8 @@ const exportQuizSchema = z
 		title: z.string(),
 		course: z.string(),
 		questions: z.array(questionContentSchema).min(1),
+		// Files from before history could be exported have none.
+		history: z.array(exportHistoryEntrySchema).optional(),
 	})
 	.superRefine((quiz, ctx) => {
 		if (quiz.name.trim() === "") {
@@ -32,6 +40,10 @@ const exportQuizSchema = z
 				message: "question numbers must be unique",
 				path: ["questions"],
 			});
+		}
+		const message = checkExportHistory(quiz.questions, quiz.history ?? []);
+		if (message !== null) {
+			ctx.addIssue({ code: "custom", message, path: ["history"] });
 		}
 	});
 
@@ -58,25 +70,27 @@ function toQuestionContent(
 	return content;
 }
 
-function toExportQuiz(quiz: Quiz): ExportQuiz {
+function toExportQuiz(quiz: Quiz, includeHistory: boolean): ExportQuiz {
 	return {
 		name: quiz.name,
 		filename: quiz.filename,
 		title: quiz.title,
 		course: quiz.course,
 		questions: quiz.questions.map(toQuestionContent),
+		...(includeHistory && { history: toExportHistory(quiz) }),
 	};
 }
 
 export function buildExport(
 	state: WorkspaceState,
 	exportedAt: string,
+	includeHistory = false,
 ): ExportFile {
 	return {
 		format: "quiz-prep-export",
 		version: 1,
 		exportedAt,
-		quizzes: state.quizzes.map(toExportQuiz),
+		quizzes: state.quizzes.map((quiz) => toExportQuiz(quiz, includeHistory)),
 	};
 }
 
@@ -98,11 +112,22 @@ export function parseExport(text: string): ParseExportResult {
 	return { ok: true, quizzes: result.data.quizzes };
 }
 
+export function exportHasHistory(quizzes: ExportQuiz[]): boolean {
+	return quizzes.some((quiz) => (quiz.history ?? []).length > 0);
+}
+
 export function quizzesFromExport(
 	quizzes: ExportQuiz[],
 	addedAt: string,
+	includeHistory = false,
 ): Quiz[] {
-	return quizzes.map((quiz) =>
-		createQuiz({ ok: true, ...quiz }, quiz.name.trim(), addedAt),
-	);
+	return quizzes.map((exported) => {
+		const quiz = createQuiz(
+			{ ok: true, ...exported },
+			exported.name.trim(),
+			addedAt,
+		);
+		if (!includeHistory || !exported.history) return quiz;
+		return { ...quiz, history: fromExportHistory(exported.history, quiz.id) };
+	});
 }
