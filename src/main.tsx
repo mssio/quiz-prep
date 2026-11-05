@@ -1,12 +1,13 @@
-import ReactDOM from 'react-dom/client'
-import { RouterProvider } from '@tanstack/react-router'
-import { getRouter } from './router'
+import { RouterProvider } from "@tanstack/react-router";
+import ReactDOM from "react-dom/client";
+import { getRouter } from "./router";
 
-const router = getRouter()
+const router = getRouter();
 
-const rootElement = document.getElementById('app')!
+const rootElement = document.getElementById("app");
+if (!rootElement) throw new Error("index.html is missing the #app element");
 
 if (!rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement)
-  root.render(<RouterProvider router={router} />)
+	const root = ReactDOM.createRoot(rootElement);
+	root.render(<RouterProvider router={router} />);
 }

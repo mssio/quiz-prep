@@ -1,17 +1,76 @@
-
 @import "tailwindcss";
 
-* {
-  box-sizing: border-box;
+@theme {
+  --color-navy: #12243b;
+  --color-blue: #245ad7;
+  --color-line: #dce3ed;
+  --color-muted: #5c6c80;
+  --color-green: #196748;
+  --color-amber: #8b5716;
+
+  --breakpoint-phone: 690px;
+  --breakpoint-tablet: 860px;
+  --breakpoint-wide: 1400px;
 }
 
-html,
-body,
-#app {
-  min-height: 100%;
-}
+@layer base {
+  :root {
+    font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont,
+      "Segoe UI", sans-serif;
+    color: #17293f;
+    background: #f3f6fa;
+    font-synthesis: none;
+  }
 
-body {
-  margin: 0;
-}
+  html,
+  body,
+  #app {
+    min-height: 100%;
+  }
 
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    touch-action: manipulation;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  a {
+    color: var(--color-blue);
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  summary:focus-visible {
+    outline: 3px solid #dfaa29;
+    outline-offset: 4px;
+  }
+
+  main:focus {
+    outline: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      transition: none !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
