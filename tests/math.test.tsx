@@ -68,7 +68,9 @@ test("plainText un-escapes dollars and drops nothing else", () => {
 
 test("inline math scrolls inside its own box, display math keeps its block", () => {
 	const inline = renderToStaticMarkup(<MathText text="so $x$ here" />);
-	expect(inline).toContain("inline-block max-w-full overflow-x-auto");
+	expect(inline).toContain(
+		"inline-block max-w-[calc(100%+0.3em)] overflow-x-auto",
+	);
 	const display = renderToStaticMarkup(<MathText text="$$x$$" />);
 	expect(display).toContain('class="block overflow-x-auto"');
 });
