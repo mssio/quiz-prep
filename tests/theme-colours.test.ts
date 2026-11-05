@@ -111,6 +111,9 @@ const PAIRS: [string, string][] = [
 	["danger-text", "surface"],
 	["danger-text", "hover"],
 	["danger-text", "page"],
+	// Transfer error message (export/import) sits on the sidebar surface.
+	["error", "surface"],
+	["error", "page"],
 	// Warning, notices, flagged and retry badges.
 	["amber", "warning-bg"],
 	["amber", "surface"],

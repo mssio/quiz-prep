@@ -127,7 +127,7 @@ export function TransferButtons({
 				/>
 			</div>
 			{error && (
-				<p role="alert" className="mb-4 text-sm leading-[1.6] text-danger-text">
+				<p role="alert" className="mb-4 text-sm leading-[1.6] text-error">
 					{error}
 				</p>
 			)}

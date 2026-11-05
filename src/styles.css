@@ -58,6 +58,7 @@
   --color-danger-bg: #ffedeb;
   --color-danger-hover: #ffe0dc;
   --color-danger-text: #a33b31;
+  --color-error: #b3261e;
   --color-danger-border: #e3b4ae;
 
   /* warning and notices */
@@ -187,6 +188,7 @@
   --color-danger-bg: #45201f;
   --color-danger-hover: #582826;
   --color-danger-text: #ff9f95;
+  --color-error: #ff9f95;
   --color-danger-border: #7a3b38;
   --color-warning-bg: #3f3010;
   --color-amber: #ebb35e;
