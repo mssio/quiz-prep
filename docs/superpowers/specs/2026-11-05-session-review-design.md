@@ -92,7 +92,7 @@ Stay on `localStorage`, decided after discussing a local database with the owner
 
 ## Export and import
 
-**Export.** When any quiz has history, Export opens a dialog with a checkbox, "Include score history", ticked by default. Its label or nearby copy should make clear this covers saved answers. With no history anywhere, Export downloads straight away as it does today. *(Ticked default and skipping the dialog are my call.)*
+**Export.** When any quiz has history, Export opens a dialog with a checkbox, "Include score history and saved answers", ticked by default. Its label or nearby copy should make clear this covers saved answers. With no history anywhere, Export downloads straight away as it does today. *(Ticked default and skipping the dialog are my call.)*
 
 **Import.** The existing "Replace everything?" dialog shows the same checkbox, ticked by default, only when the file contains history. If unticked, or if the file has none, quizzes come in with no scores, as today. Import still replaces everything. The warning says so.
 
