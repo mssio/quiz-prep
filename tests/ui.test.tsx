@@ -36,7 +36,7 @@ test("Button defaults to type button and applies the variant", () => {
 	const html = renderToStaticMarkup(<Button variant="primary">Go</Button>);
 	expect(html).toContain('type="button"');
 	expect(html).toContain("Go");
-	expect(html).toContain("bg-blue");
+	expect(html).toContain("bg-accent");
 });
 
 test("Button lets callers override the type", () => {

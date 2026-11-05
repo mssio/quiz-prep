@@ -31,7 +31,7 @@ export const Route = createFileRoute("/quizzes/$quizId/")({
 });
 
 const LINK_BUTTON =
-	"inline-flex min-h-11 items-center justify-center rounded-lg bg-blue px-[18px] py-3 text-sm font-[650] text-white no-underline hover:bg-[#1645b0]";
+	"inline-flex min-h-11 items-center justify-center rounded-lg bg-accent px-[18px] py-3 text-sm font-[650] text-on-accent no-underline hover:bg-accent-hover";
 
 function UnfinishedNotice({
 	quizId,

@@ -5,10 +5,10 @@ import type { HistoryEntry } from "#/lib/schema";
 type ReviewLink = (entry: HistoryEntry) => ReactNode;
 
 function ScoreBar({ entry }: { entry: HistoryEntry }) {
-	const colour = entry.isRetry ? "bg-[#c9a24a]" : "bg-blue";
+	const colour = entry.isRetry ? "bg-gold-bar" : "bg-accent";
 	return (
 		<span className="flex items-center gap-2.5">
-			<span className="inline-block h-2 w-10 shrink-0 overflow-hidden rounded bg-[#edf2fa] sm:w-[90px]">
+			<span className="inline-block h-2 w-10 shrink-0 overflow-hidden rounded bg-chip sm:w-[90px]">
 				<span
 					className={`block h-full ${colour}`}
 					style={{ width: `${entry.percentage}%` }}
@@ -41,7 +41,7 @@ function HistoryRow({
 			<td className="py-3 pr-2 sm:pr-3">
 				{entry.questionCount} of {entry.totalQuestions}
 				{entry.isRetry && (
-					<span className="mt-1 block w-fit rounded-md bg-[#fff1cf] px-2 py-1 text-xs font-[650] text-[#774d0b] sm:mt-0 sm:ml-2 sm:inline-block">
+					<span className="mt-1 block w-fit rounded-md bg-warning-bg px-2 py-1 text-xs font-[650] text-warning-strong sm:mt-0 sm:ml-2 sm:inline-block">
 						Retry missed
 					</span>
 				)}

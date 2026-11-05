@@ -17,12 +17,12 @@ function navigatorLabel(index: number, answered: boolean, flagged: boolean) {
 
 function navigatorClass(current: boolean, answered: boolean) {
 	const base =
-		"relative h-[39px] min-w-0 rounded-md border text-[13px] border-[#ccd6e4] bg-white text-[#4f6178]";
+		"relative h-[39px] min-w-0 rounded-md border text-[13px] border-edge bg-surface text-muted";
 	if (current) {
-		return `${base} !border-blue !bg-blue !text-white shadow-[0_0_0_3px_#dce6fe]`;
+		return `${base} !border-blue !bg-accent !text-on-accent shadow-[0_0_0_3px_var(--color-halo)]`;
 	}
 	if (answered)
-		return `${base} !border-[#c3d4f6] !bg-[#e7eefb] !text-[#2258c6]`;
+		return `${base} !border-info-border !bg-info-bg !text-info-text`;
 	return base;
 }
 
@@ -30,11 +30,11 @@ function Legend() {
 	return (
 		<div className="flex flex-wrap gap-2.5 text-xs text-muted">
 			<span className="flex items-center gap-[5px]">
-				<i className="h-2.5 w-2.5 rounded-[3px] border border-[#c4d0e0] bg-[#ceddf8]" />
+				<i className="h-2.5 w-2.5 rounded-[3px] border border-edge bg-selected-bg" />
 				Answered
 			</span>
 			<span className="flex items-center gap-[5px]">
-				<i className="h-2.5 w-2.5 rounded-[3px] border border-[#c4d0e0]" />
+				<i className="h-2.5 w-2.5 rounded-[3px] border border-edge" />
 				Unanswered
 			</span>
 			<span>⚑ Flagged</span>
@@ -57,9 +57,9 @@ export function QuizSidebar({ attempt, saveOk, onNavigate, onFinish }: Props) {
 				<p className="my-3.5 text-sm leading-[1.6] text-muted">
 					{answeredCount} of {total} answered
 				</p>
-				<div className="mt-[17px] h-1.5 overflow-hidden rounded-md bg-[#e6edf6]">
+				<div className="mt-[17px] h-1.5 overflow-hidden rounded-md bg-track">
 					<div
-						className="h-full bg-blue"
+						className="h-full bg-accent"
 						style={{ width: `${(100 * answeredCount) / total}%` }}
 					/>
 				</div>
@@ -86,7 +86,7 @@ export function QuizSidebar({ attempt, saveOk, onNavigate, onFinish }: Props) {
 								{flagged ? (
 									<span
 										aria-hidden="true"
-										className="absolute -top-[7px] right-px rounded-[3px] bg-[#fff2cf] text-sm text-amber"
+										className="absolute -top-[7px] right-px rounded-[3px] bg-warning-bg text-sm text-amber"
 									>
 										⚑
 									</span>

@@ -56,7 +56,7 @@ export function ConfirmBody({
 			</h2>
 			<p className="my-4 leading-[1.7] text-muted">{options?.copy}</p>
 			{options?.checkboxLabel && (
-				<label className="mb-4 flex min-h-11 items-center gap-3 text-navy">
+				<label className="mb-4 flex min-h-11 items-center gap-3 text-heading">
 					<input
 						type="checkbox"
 						checked={checked}
@@ -106,7 +106,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
 			<dialog
 				ref={dialogRef}
 				onClose={handleClose}
-				className="m-auto w-[calc(100%-32px)] max-w-[470px] rounded-[14px] border border-line p-7 text-navy shadow-[0_20px_100px_#12243b44] backdrop:bg-[#0b1b32aa]"
+				className="m-auto w-[calc(100%-32px)] max-w-[470px] rounded-[14px] border border-line bg-surface p-7 text-heading shadow-[0_20px_100px_var(--color-shadow-modal)] backdrop:bg-backdrop"
 			>
 				<form method="dialog">
 					<ConfirmBody

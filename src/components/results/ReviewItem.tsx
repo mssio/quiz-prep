@@ -25,14 +25,14 @@ const STATUS_LABEL: Record<GradeStatus, string> = {
 };
 
 const STATUS_STYLE: Record<GradeStatus, string> = {
-	correct: "bg-[#e7f4ed] text-[#176542]",
-	incorrect: "bg-[#ffedeb] text-[#a33b31]",
-	pending: "bg-[#fff1d7] text-[#895410]",
-	ungraded: "bg-[#edf0f4] text-[#59687d]",
+	correct: "bg-success-bg text-green",
+	incorrect: "bg-danger-bg text-danger-text",
+	pending: "bg-warning-bg text-amber",
+	ungraded: "bg-neutral-bg text-muted",
 };
 
 const ANSWER_BOX =
-	"mt-2 mb-5 rounded-[7px] bg-[#f4f7fc] p-3.5 leading-[1.65] [overflow-wrap:anywhere] whitespace-pre-wrap";
+	"mt-2 mb-5 rounded-[7px] bg-sunken p-3.5 leading-[1.65] [overflow-wrap:anywhere] whitespace-pre-wrap";
 
 function Label({ children }: { children: string }) {
 	return <span className="text-[13px] font-[650]">{children}</span>;
@@ -73,7 +73,7 @@ export function ReviewItem({
 		<details
 			open={open}
 			onToggle={(event) => setOpen(event.currentTarget.open)}
-			className="group mb-[13px] overflow-hidden rounded-xl border border-line bg-white"
+			className="group mb-[13px] overflow-hidden rounded-xl border border-line bg-surface"
 		>
 			<summary className="flex cursor-pointer list-none items-start gap-[9px] p-4 phone:gap-3.5 phone:p-5">
 				<span

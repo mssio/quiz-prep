@@ -18,14 +18,14 @@ export const Route = createRootRoute({
 
 function TopBar() {
 	return (
-		<header className="flex min-h-[75px] items-center justify-between gap-5 bg-navy p-5 text-white phone:min-h-[88px] phone:px-[25px] tablet:px-[max(5vw,24px)]">
+		<header className="flex min-h-[75px] items-center justify-between gap-5 bg-navy p-5 text-on-accent phone:min-h-[88px] phone:px-[25px] tablet:px-[max(5vw,24px)]">
 			<Link
 				to="/"
-				className="flex items-center gap-[13px] text-lg tracking-[-0.3px] text-white no-underline tablet:text-xl"
+				className="flex items-center gap-[13px] text-lg tracking-[-0.3px] text-on-accent no-underline tablet:text-xl"
 			>
 				<span className="relative pr-2 text-[31px] leading-none font-extrabold">
 					Q
-					<span className="absolute -top-[7px] right-0 text-[22px] text-[#e6bd55]">
+					<span className="absolute -top-[7px] right-0 text-[22px] text-gold">
 						•
 					</span>
 				</span>
@@ -33,8 +33,8 @@ function TopBar() {
 					Quiz <strong className="font-semibold">Prep</strong>
 				</span>
 			</Link>
-			<div className="flex items-center gap-[9px] text-sm text-[#d8e2ef]">
-				<span aria-hidden="true" className="text-[23px] text-[#e6bd55]">
+			<div className="flex items-center gap-[9px] text-sm text-topbar-muted">
+				<span aria-hidden="true" className="text-[23px] text-gold">
 					◈
 				</span>
 				<span className="hidden phone:inline">Practice until it sticks.</span>
@@ -72,7 +72,7 @@ function RootComponent() {
 			<ConfirmProvider>
 				<a
 					href="#main"
-					className="absolute top-[-60px] left-[15px] z-10 bg-white p-3 focus:top-3"
+					className="absolute top-[-60px] left-[15px] z-10 bg-surface p-3 focus:top-3"
 				>
 					Skip to workspace
 				</a>

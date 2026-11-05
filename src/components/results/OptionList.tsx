@@ -25,7 +25,7 @@ export function OptionList({ question, response }: Props) {
 			<span className="text-[13px] font-[650]">Options</span>
 			<ul
 				data-testid="option-list"
-				className="mt-2 mb-5 list-none rounded-[7px] bg-[#f4f7fc] p-0"
+				className="mt-2 mb-5 list-none rounded-[7px] bg-sunken p-0"
 			>
 				{question.options.map((option) => (
 					<li
@@ -41,7 +41,7 @@ export function OptionList({ question, response }: Props) {
 						{isPicked(response, option.id) && (
 							<span
 								data-marker="picked"
-								className={`${MARKER} bg-[#e8effc] text-[#1d4ba8]`}
+								className={`${MARKER} bg-info-bg text-info-text`}
 							>
 								Your answer
 							</span>
@@ -49,7 +49,7 @@ export function OptionList({ question, response }: Props) {
 						{question.answer !== null && isKey(question.answer, option.id) && (
 							<span
 								data-marker="correct"
-								className={`${MARKER} bg-[#e7f4ed] text-[#176542]`}
+								className={`${MARKER} bg-success-bg text-green`}
 							>
 								Correct
 							</span>

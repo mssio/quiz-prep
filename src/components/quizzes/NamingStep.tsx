@@ -17,8 +17,7 @@ type Props = {
 	onAdd(): void;
 };
 
-const FILE_ICON =
-	"rounded-lg bg-[#eef3fc] p-2.5 text-xs font-[750] text-[#3d5c8c]";
+const FILE_ICON = "rounded-lg bg-tint p-2.5 text-xs font-[750] text-steel";
 const ROW =
 	"flex items-start gap-[13px] border-t border-line py-4 first:border-t-0 first:pt-0";
 
@@ -36,25 +35,25 @@ function ValidRow({
 		<li className={ROW}>
 			<span className={FILE_ICON}>MD</span>
 			<div className="min-w-0 flex-1">
-				<label className="mb-2 block text-sm font-semibold text-[#425873]">
+				<label className="mb-2 block text-sm font-semibold text-slate">
 					Quiz name{" "}
 					<span className="font-normal text-muted">
 						· {item.result.filename} · {countLabel(count, "question")}
 					</span>
 					<input
-						className="mt-2 min-h-12 w-full rounded-lg border border-[#b7c5d8] bg-white px-3.5 py-3 font-normal text-navy"
+						className="mt-2 min-h-12 w-full rounded-lg border border-field bg-surface px-3.5 py-3 font-normal text-heading"
 						value={item.name}
 						aria-invalid={blank}
 						onChange={(event) => onChange(event.target.value)}
 					/>
 				</label>
 				{blank && (
-					<p role="alert" className="text-xs text-[#a33b31]">
+					<p role="alert" className="text-xs text-danger-text">
 						Give this quiz a name.
 					</p>
 				)}
 			</div>
-			<span className="rounded-[5px] bg-[#e7f4ed] px-[9px] py-1.5 text-xs text-[#176542]">
+			<span className="rounded-[5px] bg-success-bg px-[9px] py-1.5 text-xs text-green">
 				Ready
 			</span>
 		</li>
@@ -70,14 +69,14 @@ function SkippedRow({ item }: { item: PendingFile }) {
 				<strong className="[overflow-wrap:anywhere]">
 					{item.result.filename}
 				</strong>
-				<div className="mt-2 rounded-lg border border-[#e8ca91] bg-[#fff5df] px-4 py-3.5 text-sm leading-[1.6] text-[#73470f]">
+				<div className="mt-2 rounded-lg border border-notice-border bg-notice-bg px-4 py-3.5 text-sm leading-[1.6] text-warning-strong">
 					{item.result.errors.map((message, index) => (
 						<p key={message + String(index)}>{message}</p>
 					))}
 					<p>This file will be skipped.</p>
 				</div>
 			</div>
-			<span className="rounded-[5px] bg-[#ffedeb] px-[9px] py-1.5 text-xs text-[#a33b31]">
+			<span className="rounded-[5px] bg-danger-bg px-[9px] py-1.5 text-xs text-danger-text">
 				Skipped
 			</span>
 		</li>

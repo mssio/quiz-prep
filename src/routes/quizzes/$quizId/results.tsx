@@ -70,7 +70,7 @@ function Results() {
 					<Link
 						to="/quizzes/$quizId"
 						params={{ quizId }}
-						className="inline-flex min-h-11 items-center rounded-lg border border-[#cbd5e3] bg-white px-[18px] py-3 text-sm font-[650] text-[#243b56] no-underline hover:bg-[#f1f5fb]"
+						className="inline-flex min-h-11 items-center rounded-lg border border-edge bg-surface px-[18px] py-3 text-sm font-[650] text-strong no-underline hover:bg-hover"
 					>
 						Back to quiz
 					</Link>

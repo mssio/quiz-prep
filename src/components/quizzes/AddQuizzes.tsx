@@ -22,9 +22,7 @@ export function AddQuizzes({
 		onFiles(Array.from(event.dataTransfer.files));
 	}
 
-	const border = dragging
-		? "border-blue bg-[#eaf0ff]"
-		: "border-[#aabbd2] bg-[#f8faff]";
+	const border = dragging ? "border-blue bg-info-bg" : "border-dashed bg-faint";
 
 	return (
 		<div id="add-quizzes">
@@ -40,7 +38,7 @@ export function AddQuizzes({
 			>
 				<div
 					aria-hidden="true"
-					className="mb-[17px] grid h-12 w-11 place-items-center rounded-[7px] border-[1.5px] border-[#9eb0ca] bg-white text-[27px] text-blue shadow-[4px_4px_0_#e8edf6]"
+					className="mb-[17px] grid h-12 w-11 place-items-center rounded-[7px] border-[1.5px] border-dashed bg-surface text-[27px] text-blue shadow-[4px_4px_0_var(--color-shadow-block)]"
 				>
 					+
 				</div>

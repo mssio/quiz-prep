@@ -16,11 +16,11 @@ type Props = {
 };
 
 const LINK_BUTTON =
-	"inline-flex min-h-11 items-center justify-center rounded-lg bg-blue px-[18px] py-3 text-sm font-[650] text-white no-underline hover:bg-[#1645b0]";
+	"inline-flex min-h-11 items-center justify-center rounded-lg bg-accent px-[18px] py-3 text-sm font-[650] text-on-accent no-underline hover:bg-accent-hover";
 const ICON_BUTTON =
-	"min-h-11 rounded-md px-2.5 py-2 text-[13px] font-semibold hover:bg-[#f2f4f8]";
+	"min-h-11 rounded-md px-2.5 py-2 text-[13px] font-semibold hover:bg-hover";
 const ICON_BUTTON_MUTED = `${ICON_BUTTON} text-muted`;
-const ICON_BUTTON_DANGER = `${ICON_BUTTON} text-[#a33b31]`;
+const ICON_BUTTON_DANGER = `${ICON_BUTTON} text-danger-text`;
 
 function StartAction({ quiz, status }: { quiz: Quiz; status: QuizStatus }) {
 	const { dispatch } = useWorkspace();
@@ -105,14 +105,14 @@ function RenameInput({
 				autoFocus
 				aria-label="Quiz name"
 				aria-invalid={refused}
-				className="min-h-11 w-full rounded-lg border border-[#b7c5d8] bg-white px-3 text-[15px] font-bold text-navy"
+				className="min-h-11 w-full rounded-lg border border-field bg-surface px-3 text-[15px] font-bold text-heading"
 				value={draft}
 				onChange={(event) => setDraft(event.target.value)}
 				onKeyDown={handleKey}
 				onBlur={handleBlur}
 			/>
 			{refused && (
-				<p role="alert" className="mt-1 text-xs text-[#a33b31]">
+				<p role="alert" className="mt-1 text-xs text-danger-text">
 					A quiz needs a name.
 				</p>
 			)}
@@ -125,7 +125,7 @@ function QuizName({ quiz }: { quiz: Quiz }) {
 		<Link
 			to="/quizzes/$quizId"
 			params={{ quizId: quiz.id }}
-			className="block text-[15px] font-bold [overflow-wrap:anywhere] text-navy no-underline hover:underline"
+			className="block text-[15px] font-bold [overflow-wrap:anywhere] text-heading no-underline hover:underline"
 		>
 			{quiz.name}
 		</Link>
@@ -138,7 +138,7 @@ export function QuizRow({ quiz, onRename, onResetScores, onDelete }: Props) {
 
 	return (
 		<li className="flex flex-wrap items-center gap-4 border-t border-line py-[18px] first:border-t-0 first:pt-0">
-			<span className="rounded-lg bg-[#eef3fc] p-2.5 text-xs font-[750] text-[#3d5c8c]">
+			<span className="rounded-lg bg-tint p-2.5 text-xs font-[750] text-steel">
 				MD
 			</span>
 			<div className="min-w-[160px] flex-1">
