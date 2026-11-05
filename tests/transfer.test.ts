@@ -363,6 +363,38 @@ test.each<[string, (review: RawReview) => void]>([
 	}
 });
 
+type RawEntry = {
+	submittedAt: string;
+	percentage: number;
+	correct: number;
+	totalGradable: number;
+	questionCount: number;
+	review: unknown;
+};
+
+test.each<[string, (entry: RawEntry) => void]>([
+	["a submittedAt that isn't a date", (e) => (e.submittedAt = "yesterday")],
+	["a percentage above 100", (e) => (e.percentage = 5000)],
+	["a negative percentage", (e) => (e.percentage = -1)],
+	["a negative count", (e) => (e.correct = -1)],
+	["a fractional count", (e) => (e.totalGradable = 1.5)],
+	["more correct than gradable", (e) => (e.correct = e.totalGradable + 1)],
+	["no questions", (e) => (e.questionCount = 0)],
+	[
+		"an answered short answer without its assessment",
+		(e) => {
+			const review = e.review as unknown as RawReview;
+			review.order.push("3");
+			review.responses["3"] = "typed";
+		},
+	],
+])("history entry with %s is rejected as damaged", (_name, damage) => {
+	const text = editedFile((raw) =>
+		damage(raw.quizzes[0].history[0] as unknown as RawEntry),
+	);
+	expect(parseExport(text).ok).toBe(false);
+});
+
 test("repeated entry ids are rejected as damaged", () => {
 	const text = editedFile((raw) => {
 		raw.quizzes[0].history[1].id = raw.quizzes[0].history[0].id;
@@ -402,10 +434,15 @@ test("answers of every format survive the round trip", () => {
 	for (const question of quiz.questions) {
 		responses[question.id] = sampleResponse(question);
 	}
+	const assessments = Object.fromEntries(
+		quiz.questions
+			.filter((q) => q.format === "short-answer")
+			.map((q) => [q.id, true]),
+	);
 	const review = {
 		order: quiz.questions.map((q) => q.id),
 		responses,
-		assessments: {},
+		assessments,
 		flags: {},
 	};
 	quiz.history = [{ ...source.history[0], review }];
@@ -427,4 +464,27 @@ test("a __proto__ key in a review is dropped on import", () => {
 	const flags = quiz.history[0].review?.flags ?? {};
 	expect(Object.getPrototypeOf(flags)).toBe(Object.prototype);
 	expect(Object.keys(flags)).toEqual([quiz.questions[1].id]);
+});
+
+test("two quizzes with a retry of a retry round trip", () => {
+	const other = createQuiz(parsed, "Other", NOW);
+	const [a, b] = [source, other].map((quiz) => ({
+		...quiz,
+		history: [
+			...source.history,
+			{
+				...source.history[1],
+				id: "h3",
+				retryOf: "h2",
+				review: null,
+			},
+		],
+	}));
+	const text = serializeExport(buildExport({ quizzes: [a, b] }, NOW, true));
+	const back = quizzesFromExport(okQuizzes(parseExport(text)), NOW, true);
+	expect(back).toHaveLength(2);
+	expect(back[0].history.map((h) => h.id)).toEqual(["h1", "h2", "h3"]);
+	expect(back[0].history[2].retryOf).toBe("h2");
+	expect(back[1].history[2].retryOf).toBe("h2");
+	expect(workspaceStateSchema.safeParse({ quizzes: back }).success).toBe(true);
 });

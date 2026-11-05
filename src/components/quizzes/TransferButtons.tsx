@@ -56,7 +56,7 @@ export function TransferButtons({
 				copy: "Score history includes your saved answers from past sessions.",
 				actionText: "Export",
 				cancelText: "Cancel",
-				checkboxLabel: "Include score history",
+				checkboxLabel: "Include score history and saved answers",
 			});
 			if (!choice.confirmed) return;
 			includeHistory = choice.checked;
@@ -81,7 +81,7 @@ export function TransferButtons({
 		if (exportHasHistory(parsed.quizzes)) {
 			const choice = await confirmChoice({
 				...replace,
-				checkboxLabel: "Include score history",
+				checkboxLabel: "Include score history and saved answers",
 			});
 			if (!choice.confirmed) return;
 			includeHistory = choice.checked;

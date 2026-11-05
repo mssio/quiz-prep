@@ -23,7 +23,11 @@ export function MathText({ text }: { text: string }) {
 				return (
 					<span
 						key={key}
-						className={part.display ? "block overflow-x-auto" : undefined}
+						className={
+							part.display
+								? "block overflow-x-auto"
+								: "inline-block max-w-full overflow-x-auto overflow-y-hidden px-[0.15em] -mx-[0.15em] py-[0.3em] -my-[0.3em] align-middle"
+						}
 						// biome-ignore lint/security/noDangerouslySetInnerHtml: KaTeX output for math the tokenizer found; trust is off and plain text stays escaped.
 						dangerouslySetInnerHTML={{ __html: html }}
 					/>

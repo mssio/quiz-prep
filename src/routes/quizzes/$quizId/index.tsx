@@ -20,7 +20,7 @@ import {
 } from "#/components/ui";
 import { createAttempt } from "#/lib/attempt";
 import { countLabel } from "#/lib/formats";
-import { quizStats } from "#/lib/history";
+import { formatSessionDate, quizStats } from "#/lib/history";
 import type { Quiz } from "#/lib/schema";
 import { replaceCopy } from "#/lib/session";
 import { findQuiz, type QuizStatus, quizStatus } from "#/lib/workspace";
@@ -94,6 +94,7 @@ function HistoryPanel({ quiz, onReset }: { quiz: Quiz; onReset(): void }) {
 						<Link
 							to="/quizzes/$quizId/sessions/$sessionId"
 							params={{ quizId: quiz.id, sessionId: entry.id }}
+							aria-label={`Review ${entry.isRetry ? "retry" : "session"} from ${formatSessionDate(entry.submittedAt)}`}
 							className="-my-2 inline-flex min-h-11 items-center px-2 text-sm font-[650]"
 						>
 							Review

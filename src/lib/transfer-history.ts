@@ -55,7 +55,43 @@ function checkReview(
 		const question = byNumber.get(number);
 		return question !== undefined && responseFits(question, response);
 	});
-	return fits ? null : "a response does not fit its question";
+	if (!fits) return "a response does not fit its question";
+	// A finished session assessed every answered short answer it can. Without
+	// that, the read-only review would offer an "Assess" button.
+	const unassessed = review.order.some((number) => {
+		const question = byNumber.get(number);
+		const response = review.responses[number];
+		return (
+			question?.format === "short-answer" &&
+			question.answer !== null &&
+			typeof response === "string" &&
+			response.trim() !== "" &&
+			review.assessments[number] === undefined
+		);
+	});
+	return unassessed ? "an answered short answer lacks its assessment" : null;
+}
+
+const isCount = (n: number) => Number.isInteger(n) && n >= 0;
+
+// The load schema stays lenient so a load never fails. An import is strict,
+// because a bad date or percentage would break the pages that show it.
+function checkEntryFields(entry: ExportHistoryEntry): string | null {
+	if (Number.isNaN(new Date(entry.submittedAt).getTime()))
+		return "submittedAt must be a date";
+	if (!(entry.percentage >= 0 && entry.percentage <= 100))
+		return "percentage must be from 0 to 100";
+	const counts = [
+		entry.questionCount,
+		entry.totalQuestions,
+		entry.correct,
+		entry.totalGradable,
+	];
+	if (!counts.every(isCount)) return "counts must be whole numbers";
+	if (entry.questionCount < 1) return "a session has at least one question";
+	if (entry.correct > entry.totalGradable)
+		return "correct can't exceed the gradable questions";
+	return null;
 }
 
 // Saved reviews aren't checked against the quiz when they load. One that doesn't
@@ -95,8 +131,10 @@ export function checkExportHistory(
 ): string | null {
 	if (!hasUniqueValues(history.map((entry) => entry.id)))
 		return "history entry ids must be unique";
-	for (const { review } of history) {
-		const problem = review && checkReview(questions, review);
+	for (const entry of history) {
+		const problem =
+			checkEntryFields(entry) ??
+			(entry.review && checkReview(questions, entry.review));
 		if (problem) return problem;
 	}
 	return null;

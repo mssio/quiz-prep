@@ -65,3 +65,10 @@ test("plainText un-escapes dollars and drops nothing else", () => {
 	expect(plainText("costs \\$5 or $10")).toBe("costs $5 or $10");
 	expect(plainText("no money")).toBe("no money");
 });
+
+test("inline math scrolls inside its own box, display math keeps its block", () => {
+	const inline = renderToStaticMarkup(<MathText text="so $x$ here" />);
+	expect(inline).toContain("inline-block max-w-full overflow-x-auto");
+	const display = renderToStaticMarkup(<MathText text="$$x$$" />);
+	expect(display).toContain('class="block overflow-x-auto"');
+});

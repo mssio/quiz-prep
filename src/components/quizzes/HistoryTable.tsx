@@ -1,3 +1,5 @@
+// biome-ignore-all lint/a11y/useSemanticElements: roles restore table semantics that display: grid and block remove when rows are stacked.
+// biome-ignore-all lint/a11y/noRedundantRoles: same reason; the roles are redundant only while the elements are displayed as a table.
 import type { ReactNode } from "react";
 import { formatPercent, formatSessionDate, groupHistory } from "#/lib/history";
 import type { HistoryEntry } from "#/lib/schema";
@@ -30,9 +32,11 @@ function HistoryRow({
 }) {
 	return (
 		<tr
+			role="row"
 			className={`grid grid-cols-[minmax(0,1fr)_auto] gap-x-2 border-t border-line py-3 tablet:table-row tablet:py-0 ${nested ? "pl-5 tablet:pl-0" : ""}`}
 		>
 			<td
+				role="cell"
 				className={`block tablet:table-cell tablet:py-3 tablet:pr-3 ${nested ? "tablet:pl-6" : ""}`}
 			>
 				{nested && (
@@ -42,7 +46,10 @@ function HistoryRow({
 				)}
 				{formatSessionDate(entry.submittedAt)}
 			</td>
-			<td className="block tablet:table-cell tablet:py-3 tablet:pr-3">
+			<td
+				role="cell"
+				className="block tablet:table-cell tablet:py-3 tablet:pr-3"
+			>
 				{entry.questionCount} of {entry.totalQuestions}
 				<span className="tablet:hidden"> questions</span>
 				{entry.isRetry && (
@@ -51,10 +58,16 @@ function HistoryRow({
 					</span>
 				)}
 			</td>
-			<td className="block tablet:table-cell tablet:py-3 tablet:pr-3">
+			<td
+				role="cell"
+				className="block tablet:table-cell tablet:py-3 tablet:pr-3"
+			>
 				<ScoreBar entry={entry} />
 			</td>
-			<td className="col-start-2 row-span-3 row-start-1 self-center justify-self-end tablet:table-cell tablet:py-3 tablet:text-right">
+			<td
+				role="cell"
+				className="col-start-2 row-span-3 row-start-1 self-center justify-self-end tablet:table-cell tablet:py-3 tablet:text-right"
+			>
 				{entry.review !== null && reviewLink(entry)}
 			</td>
 		</tr>
@@ -74,16 +87,28 @@ export function HistoryTable({
 		);
 	}
 	return (
-		<table className="w-full text-left text-sm">
-			<thead className="sr-only tablet:table-header-group">
-				<tr className="text-xs tracking-[1.4px] text-muted uppercase">
-					<th className="pb-2 font-[750]">Date</th>
-					<th className="pb-2 font-[750]">Questions</th>
-					<th className="pb-2 font-[750]">Score</th>
-					<th className="pb-2" />
+		<table className="w-full text-left text-sm" role="table">
+			<thead
+				role="rowgroup"
+				className="sr-only tablet:not-sr-only tablet:table-header-group"
+			>
+				<tr
+					role="row"
+					className="text-xs tracking-[1.4px] text-muted uppercase"
+				>
+					<th role="columnheader" className="pb-2 font-[750]">
+						Date
+					</th>
+					<th role="columnheader" className="pb-2 font-[750]">
+						Questions
+					</th>
+					<th role="columnheader" className="pb-2 font-[750]">
+						Score
+					</th>
+					<th role="columnheader" className="pb-2" />
 				</tr>
 			</thead>
-			<tbody>
+			<tbody role="rowgroup">
 				{groupHistory(history).map((group) => [
 					<HistoryRow
 						key={group.entry.id}
