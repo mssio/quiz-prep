@@ -88,7 +88,18 @@ function HistoryPanel({ quiz, onReset }: { quiz: Quiz; onReset(): void }) {
 			<PanelBody>
 				<QuizStatsBlock stats={quizStats(quiz.history)} />
 				<hr className="my-6 border-line" />
-				<HistoryTable history={quiz.history} reviewLink={() => null} />
+				<HistoryTable
+					history={quiz.history}
+					reviewLink={(entry) => (
+						<Link
+							to="/quizzes/$quizId/sessions/$sessionId"
+							params={{ quizId: quiz.id, sessionId: entry.id }}
+							className="-my-2 inline-flex min-h-11 items-center px-2 text-sm font-[650]"
+						>
+							Review
+						</Link>
+					)}
+				/>
 				<p className="mt-4 text-[13px] text-muted">
 					Retries are shown but not counted in Best or Average.
 				</p>

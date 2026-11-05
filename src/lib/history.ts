@@ -71,6 +71,36 @@ export function quizStats(history: HistoryEntry[]): QuizStats {
 	};
 }
 
+export type SessionView = Pick<
+	Attempt,
+	"questions" | "order" | "responses" | "assessments" | "flags" | "status"
+>;
+
+// A past session as the review screens show it: the questions the quiz still
+// has, in the order they were shown. Null when the session has no saved answers.
+export function sessionView(
+	quiz: Quiz,
+	sessionId: string,
+): { entry: HistoryEntry; view: SessionView } | null {
+	const entry = quiz.history.find((item) => item.id === sessionId);
+	if (!entry || entry.review === null) return null;
+	const { review } = entry;
+	const byId = new Map(quiz.questions.map((q) => [q.id, q]));
+	const order = review.order.filter((id) => byId.has(id));
+	const questions = order.flatMap((id) => byId.get(id) ?? []);
+	return {
+		entry,
+		view: {
+			questions,
+			order,
+			responses: review.responses,
+			assessments: review.assessments,
+			flags: review.flags,
+			status: "submitted",
+		},
+	};
+}
+
 export type SessionGroup = { entry: HistoryEntry; retries: HistoryEntry[] };
 
 const dateFormat = new Intl.DateTimeFormat("en", {

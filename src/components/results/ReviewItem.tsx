@@ -1,17 +1,20 @@
 import { useState } from "react";
 import { MathText } from "#/components/MathText";
 import { Assessment } from "#/components/results/Assessment";
+import { OptionList } from "#/components/results/OptionList";
 import { answerText } from "#/lib/answer-text";
 import { formatNames } from "#/lib/formats";
 import { type GradeStatus, gradeQuestion } from "#/lib/grading";
-import type { Attempt, Question } from "#/lib/schema";
+import type { SessionView } from "#/lib/history";
+import type { Question } from "#/lib/schema";
 
 type Props = {
 	question: Question;
 	index: number;
-	attempt: Attempt;
+	view: SessionView;
 	sourceName: string;
-	onAssess(correct: boolean): void;
+	readOnly?: boolean;
+	onAssess?(correct: boolean): void;
 };
 
 const STATUS_LABEL: Record<GradeStatus, string> = {
@@ -52,15 +55,16 @@ function canAssess(q: Question, response: unknown): boolean {
 export function ReviewItem({
 	question,
 	index,
-	attempt,
+	view,
 	sourceName,
+	readOnly = false,
 	onAssess,
 }: Props) {
-	const response = attempt.responses[question.id];
-	const assessed = attempt.assessments[question.id];
+	const response = view.responses[question.id];
+	const assessed = view.assessments[question.id];
 	const grade = gradeQuestion(question, response, assessed);
-	const [open, setOpen] = useState(grade.status === "pending");
-	const flag = attempt.flags[question.id] ? " · ⚑ Flagged" : "";
+	const [open, setOpen] = useState(readOnly || grade.status === "pending");
+	const flag = view.flags[question.id] ? " · ⚑ Flagged" : "";
 	const mine = answerText(question, response);
 	const keyLabel =
 		question.format === "short-answer" ? "Model answer" : "Correct answer";
@@ -95,6 +99,7 @@ export function ReviewItem({
 				<p className="mb-5 text-[13px] [overflow-wrap:anywhere] text-muted">
 					{sourceName} · Q{question.number}
 				</p>
+				<OptionList question={question} response={response} />
 				<Label>Your answer</Label>
 				<div className={ANSWER_BOX}>
 					{typedByLearner(question) ? mine : <MathText text={mine} />}
@@ -111,7 +116,7 @@ export function ReviewItem({
 						</div>
 					</>
 				)}
-				{canAssess(question, response) && (
+				{!readOnly && onAssess && canAssess(question, response) && (
 					<Assessment assessed={assessed} onAssess={onAssess} />
 				)}
 			</div>

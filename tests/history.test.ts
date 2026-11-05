@@ -7,8 +7,9 @@ import {
 	historyEntryFor,
 	quizStats,
 	reviewOf,
+	sessionView,
 } from "#/lib/history";
-import type { HistoryEntry, Question } from "#/lib/schema";
+import type { HistoryEntry, Question, Quiz } from "#/lib/schema";
 
 function e(
 	percentage: number,
@@ -251,4 +252,43 @@ test("a three-level chain groups under its root, and a missing root ends the cha
 
 test("formatSessionDate renders a medium date and short time", () => {
 	expect(formatSessionDate("2026-11-04T10:00:00.000Z")).toMatch(/2026/);
+});
+
+function quizWithReview(order: string[]): Quiz {
+	const questions = [trueFalse(1), trueFalse(2)];
+	return {
+		id: "q",
+		name: "Q",
+		filename: "q.md",
+		title: "Q",
+		course: "",
+		questions,
+		attempt: null,
+		addedAt: "2026-11-04T09:00:00.000Z",
+		history: [
+			e(50, {
+				id: "s1",
+				review: {
+					order,
+					responses: { "q:1": true },
+					assessments: {},
+					flags: {},
+				},
+			}),
+			e(50, { id: "old", review: null }),
+		],
+	};
+}
+
+test("sessionView returns null for an unknown session or one with no answers", () => {
+	const quiz = quizWithReview(["q:1"]);
+	expect(sessionView(quiz, "missing")).toBeNull();
+	expect(sessionView(quiz, "old")).toBeNull();
+});
+
+test("sessionView keeps the order shown and skips a question the quiz lacks", () => {
+	const result = sessionView(quizWithReview(["q:2", "q:404", "q:1"]), "s1");
+	expect(result?.view.order).toEqual(["q:2", "q:1"]);
+	expect(result?.view.questions.map((q) => q.id)).toEqual(["q:2", "q:1"]);
+	expect(result?.view.status).toBe("submitted");
 });

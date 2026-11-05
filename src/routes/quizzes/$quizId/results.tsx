@@ -83,7 +83,7 @@ function Results() {
 				Open any question to compare your answer with the answer key.
 			</p>
 			<ReviewList
-				attempt={attempt}
+				view={attempt}
 				sourceOf={(question) => questionSource(question, state.quizzes)}
 				onAssess={(questionId, correct) =>
 					dispatch({
