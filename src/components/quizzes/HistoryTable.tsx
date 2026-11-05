@@ -8,7 +8,7 @@ function ScoreBar({ entry }: { entry: HistoryEntry }) {
 	const colour = entry.isRetry ? "bg-gold-bar" : "bg-accent";
 	return (
 		<span className="flex items-center gap-2.5">
-			<span className="inline-block h-2 w-10 shrink-0 overflow-hidden rounded bg-chip sm:w-[90px]">
+			<span className="inline-block h-2 w-10 shrink-0 overflow-hidden rounded bg-chip tablet:w-[90px]">
 				<span
 					className={`block h-full ${colour}`}
 					style={{ width: `${entry.percentage}%` }}
@@ -29,8 +29,12 @@ function HistoryRow({
 	reviewLink: ReviewLink;
 }) {
 	return (
-		<tr className="border-t border-line">
-			<td className={`py-3 pr-2 sm:pr-3 ${nested ? "pl-4 sm:pl-6" : ""}`}>
+		<tr
+			className={`grid grid-cols-[minmax(0,1fr)_auto] gap-x-2 border-t border-line py-3 tablet:table-row tablet:py-0 ${nested ? "pl-5 tablet:pl-0" : ""}`}
+		>
+			<td
+				className={`block tablet:table-cell tablet:py-3 tablet:pr-3 ${nested ? "tablet:pl-6" : ""}`}
+			>
 				{nested && (
 					<span aria-hidden="true" className="mr-1 text-muted">
 						↳
@@ -38,18 +42,19 @@ function HistoryRow({
 				)}
 				{formatSessionDate(entry.submittedAt)}
 			</td>
-			<td className="py-3 pr-2 sm:pr-3">
+			<td className="block tablet:table-cell tablet:py-3 tablet:pr-3">
 				{entry.questionCount} of {entry.totalQuestions}
+				<span className="tablet:hidden"> questions</span>
 				{entry.isRetry && (
-					<span className="mt-1 block w-fit rounded-md bg-warning-bg px-2 py-1 text-xs font-[650] text-warning-strong sm:mt-0 sm:ml-2 sm:inline-block">
+					<span className="mt-1 block w-fit rounded-md bg-warning-bg px-2 py-1 text-xs font-[650] text-warning-strong tablet:mt-0 tablet:ml-2 tablet:inline-block">
 						Retry missed
 					</span>
 				)}
 			</td>
-			<td className="py-3 pr-2 sm:pr-3">
+			<td className="block tablet:table-cell tablet:py-3 tablet:pr-3">
 				<ScoreBar entry={entry} />
 			</td>
-			<td className="py-3 text-right">
+			<td className="col-start-2 row-span-3 row-start-1 self-center justify-self-end tablet:table-cell tablet:py-3 tablet:text-right">
 				{entry.review !== null && reviewLink(entry)}
 			</td>
 		</tr>
@@ -70,7 +75,7 @@ export function HistoryTable({
 	}
 	return (
 		<table className="w-full text-left text-sm">
-			<thead>
+			<thead className="sr-only tablet:table-header-group">
 				<tr className="text-xs tracking-[1.4px] text-muted uppercase">
 					<th className="pb-2 font-[750]">Date</th>
 					<th className="pb-2 font-[750]">Questions</th>
