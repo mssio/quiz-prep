@@ -209,7 +209,7 @@ test("a two-entry cycle loses and duplicates nothing", () => {
 	expect(groups.every((g) => g.retries.length === 0)).toBe(true);
 });
 
-test("a retry of a retry stays top-level instead of nesting deeper", () => {
+test("a retry of a retry groups under the original session", () => {
 	const p = e(50, { id: "p", submittedAt: at(8) });
 	const r = e(60, { id: "r", submittedAt: at(9), isRetry: true, retryOf: "p" });
 	const rr = e(70, {
@@ -218,9 +218,35 @@ test("a retry of a retry stays top-level instead of nesting deeper", () => {
 		isRetry: true,
 		retryOf: "r",
 	});
-	const groups = groupHistory([p, r, rr]);
-	expect(groups.map((g) => g.entry.id)).toEqual(["rr", "p"]);
-	expect(groups[1].retries.map((x) => x.id)).toEqual(["r"]);
+	const groups = groupHistory([rr, p, r]);
+	expect(groups.map((g) => g.entry.id)).toEqual(["p"]);
+	expect(groups[0].retries.map((x) => x.id)).toEqual(["r", "rr"]);
+});
+
+test("a three-level chain groups under its root, and a missing root ends the chain", () => {
+	const p = e(50, { id: "p", submittedAt: at(8) });
+	const a = e(60, { id: "a", submittedAt: at(9), isRetry: true, retryOf: "p" });
+	const b = e(70, {
+		id: "b",
+		submittedAt: at(10),
+		isRetry: true,
+		retryOf: "a",
+	});
+	const c = e(80, {
+		id: "c",
+		submittedAt: at(11),
+		isRetry: true,
+		retryOf: "b",
+	});
+	const groups = groupHistory([c, b, a, p]);
+	expect(groups.map((g) => g.entry.id)).toEqual(["p"]);
+	expect(groups[0].retries.map((x) => x.id)).toEqual(["a", "b", "c"]);
+	const orphan = groupHistory([
+		e(1, { id: "x", submittedAt: at(1), retryOf: "gone" }),
+		e(2, { id: "y", submittedAt: at(2), retryOf: "x" }),
+	]);
+	expect(orphan.map((g) => g.entry.id)).toEqual(["x"]);
+	expect(orphan[0].retries.map((x) => x.id)).toEqual(["y"]);
 });
 
 test("formatSessionDate renders a medium date and short time", () => {

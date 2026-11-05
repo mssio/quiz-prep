@@ -82,33 +82,40 @@ export function formatSessionDate(iso: string): string {
 	return dateFormat.format(new Date(iso));
 }
 
-// Sessions newest first, each followed by its retries oldest first. Links can
-// be missing, self-referencing, nested or cyclic, so an entry nests only under
-// a different entry that has no parent of its own; all others stay top-level.
-// Every entry therefore appears exactly once.
+// Sessions newest first, each followed by its retries oldest first. A retry
+// groups under the root of its retryOf chain: the last entry that exists, so a
+// retry of a retry joins the original session. Entries whose chain loops back
+// on itself (a cycle or self-reference) stay top-level. Every entry appears
+// exactly once.
 export function groupHistory(history: HistoryEntry[]): SessionGroup[] {
 	const byId = new Map<string, HistoryEntry>();
 	for (const entry of history)
 		if (!byId.has(entry.id)) byId.set(entry.id, entry);
-	const hasNoParent = (entry: HistoryEntry) =>
-		entry.retryOf === null ||
-		entry.retryOf === entry.id ||
-		!byId.has(entry.retryOf);
-	const parentOf = (entry: HistoryEntry): HistoryEntry | null => {
-		if (entry.retryOf === null || entry.retryOf === entry.id) return null;
-		const parent = byId.get(entry.retryOf);
-		return parent && hasNoParent(parent) ? parent : null;
+	const rootOf = (entry: HistoryEntry): HistoryEntry => {
+		const seen = new Set([entry.id]);
+		let current = entry;
+		for (;;) {
+			const next =
+				current.retryOf === null ? undefined : byId.get(current.retryOf);
+			if (!next) return current;
+			if (seen.has(next.id)) return entry;
+			seen.add(next.id);
+			current = next;
+		}
 	};
 	const newestFirst = [...history].sort((a, b) =>
 		b.submittedAt.localeCompare(a.submittedAt),
 	);
+	const roots = new Map<HistoryEntry, HistoryEntry>();
 	const groups = new Map<HistoryEntry, SessionGroup>();
 	for (const entry of newestFirst) {
-		if (!parentOf(entry)) groups.set(entry, { entry, retries: [] });
+		const root = rootOf(entry);
+		roots.set(entry, root);
+		if (root === entry) groups.set(entry, { entry, retries: [] });
 	}
 	for (const entry of [...newestFirst].reverse()) {
-		const parent = parentOf(entry);
-		if (parent) groups.get(parent)?.retries.push(entry);
+		const root = roots.get(entry);
+		if (root && root !== entry) groups.get(root)?.retries.push(entry);
 	}
 	return [...groups.values()];
 }
